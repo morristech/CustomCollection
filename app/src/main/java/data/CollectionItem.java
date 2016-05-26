@@ -3,6 +3,9 @@ package data;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Base64;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by Jeremy on 26/05/2016.
@@ -122,5 +125,14 @@ public class CollectionItem implements Parcelable {
 
     public void setFkCollectionId(int fkCollectionId) {
         FkCollectionId = fkCollectionId;
+    }
+
+    public void populateBase64FromBitmap() {
+        if (getPhoto() != null) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            getPhoto().compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        }
     }
 }

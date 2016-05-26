@@ -135,7 +135,12 @@ public class MainActivity extends AppCompatActivity
         databaseHelper = new DatabaseHelper(this);
         databaseHelper.insertCollection(collection);
         databaseHelper.close();
+        int pagerIndex = 0;
+        if (viewPager != null) {
+            pagerIndex = viewPager.getCurrentItem();
+        }
         refreshCollections();
+        viewPager.setCurrentItem(pagerIndex);
     }
 
     public void setSelectedCollectionIndex(int selectedIndex) {
