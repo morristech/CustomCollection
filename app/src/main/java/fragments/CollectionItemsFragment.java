@@ -24,4 +24,29 @@ public class CollectionItemsFragment extends Fragment {
         return fragment;
     }
 
+    public static CollectionItemsFragment newInstance(String message) {
+        CollectionItemsFragment fragment = new CollectionItemsFragment();
+        Bundle b = new Bundle();
+        b.putString("message", message);
+        fragment.setArguments(b);
+        return fragment;
+    }
+
+    public void changeArguments(Collection collection) {
+        if (getArguments().containsKey("collection")) {
+            getArguments().remove("collection");
+            getArguments().putParcelable("collection", collection);
+        }
+    }
+
+    public void changeArguments(String message) {
+        if (getArguments().containsKey("message")) {
+            getArguments().remove("message");
+            getArguments().putString("message", message);
+        }
+    }
+
+        /*
+    TODO: XML Resource With Gridview, populate, onItemClick inflates the item's details, Add New item, Delete item
+     */
 }

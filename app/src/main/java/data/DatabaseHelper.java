@@ -48,6 +48,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY (" + CollectionItemTable.FKCOLLECTIONID + ") REFERENCES " + CollectionTable.TABLENAME + " (" + CollectionTable.ID + "));";
     }
 
+    public ArrayList<Collection> getCollections() {
+        return new CollectionTable().getCollections();
+    }
+
     private class CollectionTable {
         public static final String TABLENAME = "tblCollectionTable";
         public static final String ID = "Id";

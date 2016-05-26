@@ -26,5 +26,7 @@ public class CollectionListFragment extends Fragment {
         return fragment;
     }
 
-
+    /*
+    TODO: XML Resource with listview, populate, onItemClick stores position, Add New Collection, Delete Collection
+     */
 }

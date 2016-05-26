@@ -14,12 +14,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+
+import adapters.PagerCollectionAdapter;
+import data.Collection;
+import data.DatabaseHelper;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
     private ViewPager viewPager = null;
-
+    private PagerCollectionAdapter adapter;
+    private ArrayList<Collection> collections = new ArrayList<>();
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +53,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        bind();
     }
 
     @Override
@@ -105,7 +115,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void bind() {
+        if (collections == null || collections.isEmpty()) {
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            collections = databaseHelper.getCollections();
+            databaseHelper.close();
+        }
         viewPager = (ViewPager)findViewById(R.id.main_viewpager);
-
+        adapter = new PagerCollectionAdapter(getSupportFragmentManager(), this, collections);
+        viewPager.setAdapter(adapter);
     }
 }

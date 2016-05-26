@@ -1,11 +1,13 @@
 package adapters;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.ArrayList;
 
+import ca.useful.customcollection.R;
 import data.Collection;
 import fragments.CollectionItemsFragment;
 import fragments.CollectionListFragment;
@@ -18,9 +20,12 @@ public class PagerCollectionAdapter extends FragmentStatePagerAdapter {
     private ArrayList<Collection> collections = new ArrayList<>();
     private CollectionListFragment collectionListFragment;
     private CollectionItemsFragment collectionItemsFragment;
+    private int savedPosition = -1;
+    private Context context;
 
-    public PagerCollectionAdapter(FragmentManager fm, ArrayList<Collection> collections) {
+    public PagerCollectionAdapter(FragmentManager fm, Context context, ArrayList<Collection> collections) {
         super(fm);
+        this.context = context;
         this.collections = collections;
     }
 
@@ -34,7 +39,17 @@ public class PagerCollectionAdapter extends FragmentStatePagerAdapter {
                 return collectionListFragment;
             case 1:
                 if (collectionItemsFragment == null) {
-                    collectionItemsFragment = CollectionItemsFragment.newInstance(collections.get(position));
+                    if (savedPosition == -1) {
+                        collectionItemsFragment = CollectionItemsFragment.newInstance(context.getString(R.string.select_collection));
+                    } else {
+                        collectionItemsFragment = CollectionItemsFragment.newInstance(collections.get(savedPosition));
+                    }
+                } else {
+                    if (savedPosition == -1) {
+                        collectionItemsFragment.changeArguments(context.getString(R.string.select_collection));
+                    } else {
+                        collectionItemsFragment.changeArguments(collections.get(savedPosition));
+                    }
                 }
                 return collectionItemsFragment;
             default:
