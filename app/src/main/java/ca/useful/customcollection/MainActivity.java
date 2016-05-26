@@ -36,15 +36,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -116,12 +107,40 @@ public class MainActivity extends AppCompatActivity
 
     protected void bind() {
         if (collections == null || collections.isEmpty()) {
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            databaseHelper = new DatabaseHelper(this);
             collections = databaseHelper.getCollections();
             databaseHelper.close();
         }
         viewPager = (ViewPager)findViewById(R.id.main_viewpager);
         adapter = new PagerCollectionAdapter(getSupportFragmentManager(), this, collections);
         viewPager.setAdapter(adapter);
+    }
+
+    public void popToCollectionPage() {
+        if (adapter != null) {
+            viewPager.setCurrentItem(0, true);
+        }
+    }
+
+    public void refreshCollections() {
+        databaseHelper = new DatabaseHelper(this);
+        collections = databaseHelper.getCollections();
+        databaseHelper.close();
+        viewPager = (ViewPager)findViewById(R.id.main_viewpager);
+        adapter = new PagerCollectionAdapter(getSupportFragmentManager(), this, collections);
+        viewPager.setAdapter(adapter);
+    }
+
+    public void saveCollection(Collection collection) {
+        databaseHelper = new DatabaseHelper(this);
+        databaseHelper.insertCollection(collection);
+        databaseHelper.close();
+        refreshCollections();
+    }
+
+    public void setSelectedCollectionIndex(int selectedIndex) {
+        if (adapter != null) {
+            adapter.setIndex(selectedIndex);
+        }
     }
 }

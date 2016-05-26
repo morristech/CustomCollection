@@ -52,6 +52,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return new CollectionTable().getCollections();
     }
 
+    public long insertCollection(Collection collection) {
+        return new CollectionTable().insertCollection(collection);
+    }
+
     private class CollectionTable {
         public static final String TABLENAME = "tblCollectionTable";
         public static final String ID = "Id";

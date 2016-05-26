@@ -73,4 +73,8 @@ public class PagerCollectionAdapter extends FragmentStatePagerAdapter {
                 return "N/A";
         }
     }
+
+    public void setIndex(int selectedIndex) {
+        savedPosition = selectedIndex;
+    }
 }
