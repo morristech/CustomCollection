@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createCollectionTable(db);
         createCollectionItemTable(db);
+        createCollectionItemPhotoTable(db);
     }
 
     //drop table if exists (tablename)
@@ -33,6 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + CollectionItemTable.TABLENAME);
         db.execSQL("DROP TABLE IF EXISTS " + CollectionTable.TABLENAME);
+        db.execSQL("DROP TABLE IF EXISTS " + PhotoTable.TABLENAME);
         onCreate(db);
     }
 
@@ -44,8 +46,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void createCollectionItemTable(SQLiteDatabase db) {
         String sql = "CREATE TABLE " + CollectionItemTable.TABLENAME + " (" + CollectionItemTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + CollectionItemTable.NAME + " TEXT NOT NULL, " + CollectionItemTable.DESCRIPTION + " TEXT, " +
-                CollectionItemTable.CUSTOMINDEX + " TEXT, " + CollectionItemTable.BASEPHOTO + " TEXT, " + CollectionItemTable.VALUE + " REAL, " + CollectionItemTable.FKCOLLECTIONID + " INTEGER NOT NULL, " +
+                CollectionItemTable.CUSTOMINDEX + " TEXT, " + CollectionItemTable.VALUE + " REAL, " + CollectionItemTable.FKCOLLECTIONID + " INTEGER NOT NULL, " +
                 "FOREIGN KEY (" + CollectionItemTable.FKCOLLECTIONID + ") REFERENCES " + CollectionTable.TABLENAME + " (" + CollectionTable.ID + "));";
+        db.execSQL(sql);
+    }
+
+    public void createCollectionItemPhotoTable(SQLiteDatabase db) {
+        String sql = "CREATE TABLE " + PhotoTable.TABLENAME + " (" + PhotoTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + PhotoTable.BASE64 + " TEXT NOT NULL, " + PhotoTable.FKCOLLECTIONITEMID + " INTEGER NOT NULL, " +
+                "FOREIGN KEY (" + PhotoTable.FKCOLLECTIONITEMID + ") REFERENCES " + CollectionItemTable.TABLENAME + " (" + CollectionItemTable.ID + "));";
+        db.execSQL(sql);
     }
 
     public ArrayList<Collection> getCollections() {
@@ -136,10 +145,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cv.put(NAME, item.getName());
             cv.put(DESCRIPTION, item.getDescription());
             cv.put(VALUE, item.getValue());
-            cv.put(BASEPHOTO, item.getBase64Photo());
             cv.put(CUSTOMINDEX, item.getCustomIndexReminder());
             cv.put(FKCOLLECTIONID, item.getFkCollectionId());
-            return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+            long id =  db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+            for (CollectionItemPhoto photo : item.getPhotos()) {
+                if (id != -1) {
+                    photo.setFkCollectionItemId((int) id);
+                    new PhotoTable().insertPhoto(photo);
+                }
+            }
+            return id;
         }
 
         public CollectionItem processSingleItem(Cursor cursor) {
@@ -149,9 +164,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 item.setName(cursor.getString(cursor.getColumnIndex(NAME)));
                 item.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
                 item.setFkCollectionId(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONID)));
-                item.setBase64Photo(cursor.getString(cursor.getColumnIndex(BASEPHOTO)));
                 item.setCustomIndexReminder(cursor.getString(cursor.getColumnIndex(CUSTOMINDEX)));
                 item.setValue(cursor.getDouble(cursor.getColumnIndex(VALUE)));
+                item.setPhotos(new PhotoTable().getCollectionItemPhotosByCollectionItemId(item.getId()));
             }
             return item;
         }
@@ -181,7 +196,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         public void deleteItemByCollectionItemId(int collectionItemId) {
             SQLiteDatabase db = getWritableDatabase();
+            new PhotoTable().deleteCollectionItemPhotosByCollectionItemId(collectionItemId);
             db.delete(TABLENAME, ID + " = ?", new String[]{Integer.toString(collectionItemId)});
+        }
+    }
+
+    private class PhotoTable {
+        public static final String TABLENAME = "tblPhotos";
+        public static final String ID = "Id";
+        public static final String BASE64 = "Base64Photo";
+        public static final String FKCOLLECTIONITEMID = "Fk_CollectionItemId";
+        public long insertPhoto(CollectionItemPhoto photo) {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            if (photo.getId() != -1) {
+                cv.put(ID, photo.getId());
+            }
+            cv.put(BASE64, photo.getPhotosAsBase64());
+            cv.put(FKCOLLECTIONITEMID, photo.getFkCollectionItemId());
+            return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        }
+
+        public CollectionItemPhoto processSingle(Cursor cursor) {
+            CollectionItemPhoto photo = new CollectionItemPhoto();
+            if (cursor != null) {
+                photo.setId(cursor.getInt(cursor.getColumnIndex(ID)));
+                photo.setPhotosAsBase64(cursor.getString(cursor.getColumnIndex(BASE64)));
+                photo.setFkCollectionItemId(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONITEMID)));
+            }
+            return photo;
+        }
+
+        public ArrayList<CollectionItemPhoto> processMultiple(Cursor cursor) {
+            ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    photos.add(processSingle(cursor));
+                    cursor.moveToNext();
+                }
+                cursor.close();
+            }
+            return photos;
+        }
+
+        public ArrayList<CollectionItemPhoto> getCollectionItemPhotosByCollectionItemId(int collectionItemId) {
+            SQLiteDatabase db = getReadableDatabase();
+            return processMultiple(db.query(TABLENAME, null, FKCOLLECTIONITEMID + " = ?", new String[]{Integer.toString(collectionItemId)}, null, null, null));
+        }
+
+        public void deleteCollectionItemPhotosByCollectionItemId(int collectionItemId) {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete(TABLENAME, FKCOLLECTIONITEMID + " = ?", new String[]{Integer.toString(collectionItemId)});
         }
     }
 }

@@ -1,11 +1,13 @@
 package data;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 /**
  * Created by Jeremy on 26/05/2016.
@@ -17,11 +19,10 @@ public class CollectionItem implements Parcelable {
     private String Description = "";
     private String CustomIndexReminder = "";
     private double Value = 0D;
-    private Bitmap Photo = null;
-    private String Base64Photo = "";
     private int FkCollectionId = -1;
-
+    private ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
     public CollectionItem() {}
+
 
     protected CollectionItem(Parcel in) {
         Id = in.readInt();
@@ -29,8 +30,6 @@ public class CollectionItem implements Parcelable {
         Description = in.readString();
         CustomIndexReminder = in.readString();
         Value = in.readDouble();
-        Photo = in.readParcelable(Bitmap.class.getClassLoader());
-        Base64Photo = in.readString();
         FkCollectionId = in.readInt();
     }
 
@@ -41,9 +40,8 @@ public class CollectionItem implements Parcelable {
         dest.writeString(Description);
         dest.writeString(CustomIndexReminder);
         dest.writeDouble(Value);
-        dest.writeParcelable(Photo, flags);
-        dest.writeString(Base64Photo);
         dest.writeInt(FkCollectionId);
+        dest.writeTypedList(photos);
     }
 
     @Override
@@ -103,22 +101,6 @@ public class CollectionItem implements Parcelable {
         Value = value;
     }
 
-    public Bitmap getPhoto() {
-        return Photo;
-    }
-
-    public void setPhoto(Bitmap photo) {
-        Photo = photo;
-    }
-
-    public String getBase64Photo() {
-        return Base64Photo;
-    }
-
-    public void setBase64Photo(String base64Photo) {
-        Base64Photo = base64Photo;
-    }
-
     public int getFkCollectionId() {
         return FkCollectionId;
     }
@@ -127,12 +109,42 @@ public class CollectionItem implements Parcelable {
         FkCollectionId = fkCollectionId;
     }
 
+    public ArrayList<CollectionItemPhoto> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(ArrayList<CollectionItemPhoto> photos) {
+        this.photos = photos;
+    }
+
     public void populateBase64FromBitmap() {
-        if (getPhoto() != null) {
+        for (CollectionItemPhoto photo : photos) {
+            Bitmap bmp = photo.getPhotosAsBitmap();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            getPhoto().compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream.toByteArray();
             String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+            photo.setPhotosAsBase64(encoded);
+        }
+    }
+
+    public void addPhotoItemFromBitmap(Bitmap bmp) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        CollectionItemPhoto photo = new CollectionItemPhoto();
+        photo.setPhotosAsBase64(encoded);
+        photo.setFkCollectionItemId(getId());
+        photos.add(photo);
+    }
+
+    public void populateBitmapsFromBase64() {
+        for (CollectionItemPhoto photo : photos) {
+            String base = photo.getPhotosAsBase64();
+            byte[] bytes = Base64.decode(base, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            photo.setPhotosAsBitmap(decodedByte);
         }
     }
 }

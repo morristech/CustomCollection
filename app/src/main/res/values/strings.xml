@@ -8,4 +8,12 @@
     <string name="select_collection">Please Select a Collection!</string>
     <string name="collection_item_select_collection">Select A Collection</string>
     <string name="ok">OK</string>
+    <string name="name">Name</string>
+    <string name="enter_name">Enter a name</string>
+    <string name="description">Description</string>
+    <string name="enter_description">Enter a description</string>
+    <string name="value">Value</string>
+    <string name="enter_value">Enter a value</string>
+    <string name="reference">Reference</string>
+    <string name="enter_reference">Enter a reference</string>
 </resources>
