@@ -148,4 +148,5 @@ public class MainActivity extends AppCompatActivity
             adapter.setIndex(selectedIndex);
         }
     }
+
 }
