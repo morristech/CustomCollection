@@ -13,22 +13,22 @@ import java.util.ArrayList;
 import adapters.CollectionAdapter;
 import ca.useful.customcollection.MainActivity;
 import ca.useful.customcollection.R;
+import data.Bundles;
 import data.Collection;
 
 /**
  * Created by Jeremy on 26/05/2016.
  */
-public class CollectionListFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class CollectionListFragment extends Fragment {
     private static final String TAG = "CollectionListFrag";
     private ArrayList<Collection> collections = new ArrayList<>();
     private ListView listView;
     private CollectionAdapter adapter;
-    private int selectedIndex = -1;
 
     public static CollectionListFragment newInstance(ArrayList<Collection> collections) {
         CollectionListFragment fragment = new CollectionListFragment();
         Bundle b = new Bundle();
-        b.putParcelableArrayList("collections", collections);
+        b.putParcelableArrayList(Bundles.COLLECTIONEXTRA, collections);
         fragment.setArguments(b);
         return fragment;
     }
@@ -44,45 +44,30 @@ public class CollectionListFragment extends Fragment implements AdapterView.OnIt
     public void onViewCreated(View view, Bundle savedInstance) {
         super.onViewCreated(view, savedInstance);
         if (getArguments() != null) {
-            if (getArguments().getParcelable("collection") != null) {
-                collections = getArguments().getParcelableArrayList("collections");
-            }
-        }
-        if (savedInstance != null && savedInstance.get("selectedIndex") != null) {
-            selectedIndex = savedInstance.getInt("selectedIndex");
-            if (getActivity() != null) {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity)getActivity()).setSelectedCollectionIndex(selectedIndex);
-                }
+            if (getArguments().get(Bundles.COLLECTIONEXTRA) != null) {
+                collections = getArguments().getParcelableArrayList(Bundles.COLLECTIONEXTRA);
             }
         }
         setUpListView();
     }
 
-    private void setUpListView() {
+    public void setUpListView() {
         if (getActivity() != null) {
-            listView = (ListView) getActivity().findViewById(R.id.collection_listview);
+            if (collections == null) {
+                collections = new ArrayList<>();
+            }
+            listView = (ListView) getView().findViewById(R.id.collection_listview);
             adapter = new CollectionAdapter(getActivity(), collections);
             listView.setAdapter(adapter);
-            listView.setOnItemClickListener(this);
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        selectedIndex = position;
-        if (getActivity() != null) {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).setSelectedCollectionIndex(selectedIndex);
-            }
-        }
+
+    public CollectionAdapter getAdapter() {
+        return adapter;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle out) {
-        out.putInt("selectedIndex", selectedIndex);
+    public ListView getListView() {
+        return listView;
     }
-    /*
-    TODO: Add New Collection, Delete Collection
-     */
 }

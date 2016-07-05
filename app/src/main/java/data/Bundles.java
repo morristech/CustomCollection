@@ -10,4 +10,5 @@ public class Bundles {
     public static final String FOREIGNKEYEXTRA = "ca.useful.customcollection.CollectionItemForeignKey";
     public static final String COLLECTIONIDEXTRA = "ca.useful.customcollection.CollectionId";
     public static final String COLLECTIONITEMEXTRA = "ca.useful.customcollection.CollectionItem";
+    public static final String COLLECTIONEXTRA = "ca.useful.customcollection.CollectionExtra";
 }

@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -47,7 +48,7 @@ public class AddItemAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(context);
         TextView tvTitle = null;
-        EditText et = null;
+        final EditText et;
         switch(position) {
             case 0:
                 //photo
@@ -63,7 +64,7 @@ public class AddItemAdapter extends BaseAdapter {
                         if (position == 0) {
                             //Take Photo Here
                         } else {
-                            //Delete Associated Photo Here
+
                         }
                     }
                 });
@@ -75,6 +76,7 @@ public class AddItemAdapter extends BaseAdapter {
                 et = (EditText)convertView.findViewById(R.id.item_string_text);
                 tvTitle.setText(R.string.name);
                 et.setHint(R.string.enter_name);
+
                 et.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -134,7 +136,9 @@ public class AddItemAdapter extends BaseAdapter {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        item.setValue(Double.parseDouble(s.toString()));
+                        if (s.toString() != null && !s.toString().equals("")) {
+                            item.setValue(Double.parseDouble(s.toString()));
+                        }
                     }
 
                     @Override
@@ -142,7 +146,9 @@ public class AddItemAdapter extends BaseAdapter {
 
                     }
                 });
-                et.setText(Double.toString(item.getValue()));
+                if (item.getValue() != 0.0) {
+                    et.setText(Double.toString(item.getValue()));
+                }
                 break;
             case 4:
                 //index
@@ -168,6 +174,7 @@ public class AddItemAdapter extends BaseAdapter {
                     }
                 });
                 et.setText(item.getCustomIndexReminder());
+                et.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 break;
             default:
                 convertView = inflater.inflate(R.layout.item_string, parent, false);

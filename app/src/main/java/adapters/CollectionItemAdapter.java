@@ -49,8 +49,8 @@ public class CollectionItemAdapter extends BaseAdapter {
         TextView tvValue = (TextView)convertView.findViewById(R.id.collection_item_value);
         TextView tvReference = (TextView)convertView.findViewById(R.id.collection_item_reference_index);
         CollectionItem item = getItem(position);
-        if (item.getPhoto() != null) {
-            iv.setImageBitmap(item.getPhoto());
+        if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
+            iv.setImageBitmap(item.getPhotos().get(0).getPhotosAsBitmap());
         }
         tvName.setText(item.getName());
         if (item.getDescription().equals("")) {

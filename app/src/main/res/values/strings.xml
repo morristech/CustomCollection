@@ -17,4 +17,5 @@
     <string name="reference">Reference</string>
     <string name="enter_reference">Enter a reference</string>
     <string name="photos">Photos</string>
+    <string name="new_collection_name">New Collection Name</string>
 </resources>

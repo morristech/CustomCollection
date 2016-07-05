@@ -1,17 +1,13 @@
 package fragments;
 
-import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import adapters.CollectionItemAdapter;
-import ca.useful.customcollection.MainActivity;
 import ca.useful.customcollection.R;
 import data.Collection;
 
@@ -20,9 +16,7 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     private GridView gridView;
     private Collection collection;
     private CollectionItemAdapter adapter;
-    private String message = "";
-    private static final int TAKE_PICTURE = 1;
-    private Uri imageUri;
+    private AddCollectionItemFragment addCollectionItemFragment;
 
     public static CollectionItemsFragment newInstance(Collection collection) {
         CollectionItemsFragment fragment = new CollectionItemsFragment();
@@ -30,28 +24,6 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
         b.putParcelable("collection", collection);
         fragment.setArguments(b);
         return fragment;
-    }
-
-    public static CollectionItemsFragment newInstance(String message) {
-        CollectionItemsFragment fragment = new CollectionItemsFragment();
-        Bundle b = new Bundle();
-        b.putString("message", message);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
-    public void changeArguments(Collection collection) {
-        if (getArguments().containsKey("collection")) {
-            getArguments().remove("collection");
-            getArguments().putParcelable("collection", collection);
-        }
-    }
-
-    public void changeArguments(String message) {
-        if (getArguments().containsKey("message")) {
-            getArguments().remove("message");
-            getArguments().putString("message", message);
-        }
     }
 
     @Override
@@ -65,9 +37,6 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     public void onViewCreated(View view, Bundle savedInstance) {
         super .onViewCreated(view, savedInstance);
         if (getArguments() != null) {
-            if (getArguments().getString("message") != null) {
-                message = getArguments().getString("message");
-            }
             if (getArguments().getParcelable("collection") != null) {
                 collection = getArguments().getParcelable("collection");
             }
@@ -77,31 +46,25 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
 
     private void setUpGridView() {
         if (getActivity() != null) {
-            gridView = (GridView)getActivity().findViewById(R.id.collection_item_gridview);
+            gridView = (GridView)getView().findViewById(R.id.collection_item_gridview);
             if (collection != null) {
                 adapter = new CollectionItemAdapter(getActivity(), collection);
                 gridView.setAdapter(adapter);
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getActivity().getString(R.string.collection_item_select_collection));
-                builder.setMessage(message);
-                builder.setPositiveButton(getActivity().getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity)getActivity()).popToCollectionPage();
-                        }
-                        dialog.dismiss();
-                    }
-                });
-                builder.show();
+                gridView.setOnItemClickListener(this);
             }
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //TODO zoom view as per here: https://developer.android.com/training/animation/zoom.html
-        //TODO edit/Delete
+        //TODO this is edit, add delete
+        if (getActivity() != null) {
+            addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position));
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .add(addCollectionItemFragment, "addCollectionFragment")
+                    .addToBackStack("addCollectionFragment")
+                    .commit();
+        }
     }
+
 }

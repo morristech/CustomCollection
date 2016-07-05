@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:minHeight="24dp"
-    android:background="@color/transparent_white_percent_25"
+    android:minHeight="48dp"
+    android:background="@color/transparent_black_percent_25"
     android:layout_margin="3dp"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/collection_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center|left"
         android:padding="3dp"
         android:layout_weight=".25"
         android:textStyle="italic|bold"
-        android:textColor="@color/transparent_black_percent_50"
+        android:textColor="@color/white"
         android:textSize="16sp" />
     <TextView
         android:id="@+id/collection_number_items"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:padding="3dp"
         android:gravity="center"
         android:layout_weight=".75"
         android:textStyle="italic"
-        android:textColor="@color/transparent_black_percent_50"
+        android:textColor="@color/white"
         android:textSize="14sp" />
 </LinearLayout>

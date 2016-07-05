@@ -1,108 +1,59 @@
 package ca.useful.customcollection;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 
-import adapters.PagerCollectionAdapter;
 import data.Collection;
+import data.CollectionItem;
 import data.DatabaseHelper;
+import fragments.AddCollectionItemFragment;
+import fragments.CollectionItemsFragment;
+import fragments.CollectionListFragment;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-    private ViewPager viewPager = null;
-    private PagerCollectionAdapter adapter;
     private ArrayList<Collection> collections = new ArrayList<>();
     private DatabaseHelper databaseHelper;
+    private CollectionListFragment collectionListFragment;
+    private CollectionItemsFragment collectionItemsFragment;
+    private AddCollectionItemFragment addCollectionItemFragment;
+    private EditText etCollectionName;
+    private ImageButton btnAddCollection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
+        setContentView(R.layout.content_main);
         bind();
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+    protected void onStart() {
+        super .onStart();
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment test = getSupportFragmentManager().findFragmentByTag("collectionList");
+                if (test != null && test.isVisible()) {
+                    if (collectionListFragment != null && collectionListFragment.getListView() != null) {
+                        collectionListFragment.getListView().setOnItemClickListener(MainActivity.this);
+                    }
+                }
+            }
+        });
+        if (collectionListFragment != null && collectionListFragment.getListView() != null) {
+            collectionListFragment.getListView().setOnItemClickListener(MainActivity.this);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     protected void bind() {
@@ -111,42 +62,80 @@ public class MainActivity extends AppCompatActivity
             collections = databaseHelper.getCollections();
             databaseHelper.close();
         }
-        viewPager = (ViewPager)findViewById(R.id.main_viewpager);
-        adapter = new PagerCollectionAdapter(getSupportFragmentManager(), this, collections);
-        viewPager.setAdapter(adapter);
-    }
+        collectionListFragment = CollectionListFragment.newInstance(collections);
 
-    public void popToCollectionPage() {
-        if (adapter != null) {
-            viewPager.setCurrentItem(0, true);
-        }
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_fragment_layout, collectionListFragment, "collectionList")
+                .commit();
+
+        etCollectionName = (EditText) findViewById(R.id.main_collection_name);
+        btnAddCollection = (ImageButton) findViewById(R.id.main_collection_add_button);
+        btnAddCollection.setOnClickListener(this);
+
     }
 
     public void refreshCollections() {
         databaseHelper = new DatabaseHelper(this);
         collections = databaseHelper.getCollections();
         databaseHelper.close();
-        viewPager = (ViewPager)findViewById(R.id.main_viewpager);
-        adapter = new PagerCollectionAdapter(getSupportFragmentManager(), this, collections);
-        viewPager.setAdapter(adapter);
+
+        if (collectionListFragment != null && collectionListFragment.getListView() != null) {
+            collectionListFragment.getListView().setOnItemClickListener(this);
+        }
     }
 
     public void saveCollection(Collection collection) {
         databaseHelper = new DatabaseHelper(this);
         databaseHelper.insertCollection(collection);
         databaseHelper.close();
-        int pagerIndex = 0;
-        if (viewPager != null) {
-            pagerIndex = viewPager.getCurrentItem();
-        }
         refreshCollections();
-        viewPager.setCurrentItem(pagerIndex);
     }
 
-    public void setSelectedCollectionIndex(int selectedIndex) {
-        if (adapter != null) {
-            adapter.setIndex(selectedIndex);
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        collectionItemsFragment = CollectionItemsFragment.newInstance(collectionListFragment.getAdapter().getItem(position));
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_fragment_layout, collectionItemsFragment, "collectionItems")
+                .addToBackStack("collectionItems")
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (etCollectionName == null) {
+            etCollectionName = (EditText) findViewById(R.id.main_collection_name);
+        }
+        Fragment collectionList = getSupportFragmentManager().findFragmentByTag("collectionList");
+        Fragment collectionItemList = getSupportFragmentManager().findFragmentByTag("collectionItems");
+        if (collectionList != null && collectionList.isVisible()) {
+            Collection collection = new Collection();
+            collection.setTitle(etCollectionName.getText().toString());
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            databaseHelper.insertCollection(collection);
+            etCollectionName.setText("");
+            refreshCollections();
+        }
+        if (collectionItemList != null && collectionItemList.isVisible()) {
+            addCollectionItemFragment = AddCollectionItemFragment.newInstance(new CollectionItem());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
+                    .addToBackStack("addCollectionFragment")
+                    .commit();
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super .onResume();
+
+    }
 }

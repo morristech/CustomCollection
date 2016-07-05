@@ -20,7 +20,6 @@ import android.widget.ListView;
 import java.io.File;
 
 import adapters.AddItemAdapter;
-import adapters.HorizontalGalleryAdapter;
 import ca.useful.customcollection.R;
 import data.Bundles;
 import data.CollectionItem;
@@ -114,8 +113,8 @@ public class AddCollectionItemFragment extends Fragment implements View.OnClickL
 
     private void bind() {
         if (getActivity() != null) {
-            okButton = (Button) getActivity().findViewById(R.id.add_collection_item_ok_button);
-            listView = (ListView)getActivity().findViewById(R.id.add_collection_item_listview);
+            okButton = (Button) getView().findViewById(R.id.add_collection_item_ok_button);
+            listView = (ListView)getView().findViewById(R.id.add_collection_item_listview);
             adapter = new AddItemAdapter(getActivity(), item);
             listView.setAdapter(adapter);
             okButton.setOnClickListener(this);

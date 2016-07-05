@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/collection_listview"
         android:background="@color/transparent_white_percent_50"
-        android:divider="@color/transparent_black_percent_25"
-        android:dividerHeight="1dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3dp"
         ></ListView>
 </LinearLayout>
