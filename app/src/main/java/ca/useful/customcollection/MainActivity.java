@@ -19,16 +19,14 @@ import fragments.AddCollectionItemFragment;
 import fragments.CollectionItemsFragment;
 import fragments.CollectionListFragment;
 
-public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class MainActivity extends FragmentActivity {
 
     private static final String TAG = "MainActivity";
     private ArrayList<Collection> collections = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private CollectionListFragment collectionListFragment;
-    private CollectionItemsFragment collectionItemsFragment;
     private AddCollectionItemFragment addCollectionItemFragment;
-    private EditText etCollectionName;
-    private ImageButton btnAddCollection;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +38,12 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     @Override
     protected void onStart() {
         super .onStart();
-        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+        /*getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                Fragment test = getSupportFragmentManager().findFragmentByTag("collectionList");
-                if (test != null && test.isVisible()) {
-                    if (collectionListFragment != null && collectionListFragment.getListView() != null) {
-                        collectionListFragment.getListView().setOnItemClickListener(MainActivity.this);
-                    }
-                }
+
             }
-        });
-        if (collectionListFragment != null && collectionListFragment.getListView() != null) {
-            collectionListFragment.getListView().setOnItemClickListener(MainActivity.this);
-        }
+        });*/
     }
 
     protected void bind() {
@@ -67,63 +57,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.main_fragment_layout, collectionListFragment, "collectionList")
                 .commit();
-
-        etCollectionName = (EditText) findViewById(R.id.main_collection_name);
-        btnAddCollection = (ImageButton) findViewById(R.id.main_collection_add_button);
-        btnAddCollection.setOnClickListener(this);
-
-    }
-
-    public void refreshCollections() {
-        databaseHelper = new DatabaseHelper(this);
-        collections = databaseHelper.getCollections();
-        databaseHelper.close();
-
-        if (collectionListFragment != null && collectionListFragment.getListView() != null) {
-            collectionListFragment.getListView().setOnItemClickListener(this);
-        }
-    }
-
-    public void saveCollection(Collection collection) {
-        databaseHelper = new DatabaseHelper(this);
-        databaseHelper.insertCollection(collection);
-        databaseHelper.close();
-        refreshCollections();
-    }
-
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        collectionItemsFragment = CollectionItemsFragment.newInstance(collectionListFragment.getAdapter().getItem(position));
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_fragment_layout, collectionItemsFragment, "collectionItems")
-                .addToBackStack("collectionItems")
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit();
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (etCollectionName == null) {
-            etCollectionName = (EditText) findViewById(R.id.main_collection_name);
-        }
-        Fragment collectionList = getSupportFragmentManager().findFragmentByTag("collectionList");
-        Fragment collectionItemList = getSupportFragmentManager().findFragmentByTag("collectionItems");
-        if (collectionList != null && collectionList.isVisible()) {
-            Collection collection = new Collection();
-            collection.setTitle(etCollectionName.getText().toString());
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            databaseHelper.insertCollection(collection);
-            etCollectionName.setText("");
-            refreshCollections();
-        }
-        if (collectionItemList != null && collectionItemList.isVisible()) {
-            addCollectionItemFragment = AddCollectionItemFragment.newInstance(new CollectionItem());
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
-                    .addToBackStack("addCollectionFragment")
-                    .commit();
-        }
     }
 
     @Override
@@ -136,6 +69,5 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     @Override
     public void onResume() {
         super .onResume();
-
     }
 }

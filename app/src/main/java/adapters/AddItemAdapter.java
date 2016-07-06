@@ -1,6 +1,12 @@
 package adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.text.Editable;
@@ -14,12 +20,21 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import ca.useful.customcollection.R;
+import data.Bundles;
 import data.CollectionItem;
+import fragments.AddCollectionItemFragment;
 
 public class AddItemAdapter extends BaseAdapter {
+    private static final int TAKE_PICTURE = 1;
     private Context context;
     private CollectionItem item;
+    private Uri imageUri;
 
     public AddItemAdapter(Context context, CollectionItem item) {
         this.context = context;
@@ -62,7 +77,7 @@ public class AddItemAdapter extends BaseAdapter {
                     @Override
                     public void onChildSelected(ViewGroup parent, View view, int position, long id) {
                         if (position == 0) {
-                            //Take Photo Here
+                            takePhoto();
                         } else {
 
                         }
@@ -185,7 +200,24 @@ public class AddItemAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public CollectionItem processCollectionItem() {
+    public CollectionItem getCollectionItem() {
         return item;
+    }
+
+    public void takePhoto() {
+        if (context != null) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            Date date = Calendar.getInstance().getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDDHHmmss");
+            File photo = new File(Environment.getExternalStorageDirectory(), "Pic" + sdf.format(date) + ".png");
+            intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                    Uri.fromFile(photo));
+            imageUri = Uri.fromFile(photo);
+            Bundle uriBundle = new Bundle();
+            uriBundle.putString(Bundles.IMAGEURI, imageUri.toString());
+            uriBundle.putParcelable(Bundles.COLLECTIONITEMEXTRA, getCollectionItem());
+            intent.putExtra(Bundles.REFERENCEEXTRA, uriBundle);
+            ((Activity)context).startActivityForResult(intent, TAKE_PICTURE);
+        }
     }
 }

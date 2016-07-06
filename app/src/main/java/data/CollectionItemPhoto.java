@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class CollectionItemPhoto implements Parcelable {
     private int Id = -1;
     private int FkCollectionItemId = -1;
+    private String photoUri = "";
     private String photosAsBase64 = "";
     private Bitmap photosAsBitmap = null;
 
@@ -19,6 +20,7 @@ public class CollectionItemPhoto implements Parcelable {
         FkCollectionItemId = in.readInt();
         photosAsBase64 = in.readString();
         photosAsBitmap = in.readParcelable(Bitmap.class.getClassLoader());
+        photoUri = in.readString();
     }
 
     public static final Creator<CollectionItemPhoto> CREATOR = new Creator<CollectionItemPhoto>() {
@@ -44,6 +46,7 @@ public class CollectionItemPhoto implements Parcelable {
         dest.writeInt(FkCollectionItemId);
         dest.writeString(photosAsBase64);
         dest.writeParcelable(photosAsBitmap, flags);
+        dest.writeString(photoUri);
     }
 
     public int getId() {
@@ -76,5 +79,13 @@ public class CollectionItemPhoto implements Parcelable {
 
     public void setPhotosAsBitmap(Bitmap photosAsBitmap) {
         this.photosAsBitmap = photosAsBitmap;
+    }
+
+    public String getPhotoUri() {
+        return photoUri;
+    }
+
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
     }
 }

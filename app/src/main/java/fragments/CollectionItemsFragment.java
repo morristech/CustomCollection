@@ -10,6 +10,7 @@ import android.widget.GridView;
 import adapters.CollectionItemAdapter;
 import ca.useful.customcollection.R;
 import data.Collection;
+import data.CollectionItem;
 
 public class CollectionItemsFragment extends Fragment implements AdapterView.OnItemClickListener {
     private static final String TAG = "CollectionItemsFrag";
@@ -59,12 +60,19 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         //TODO this is edit, add delete
         if (getActivity() != null) {
-            addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position));
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .add(addCollectionItemFragment, "addCollectionFragment")
-                    .addToBackStack("addCollectionFragment")
-                    .commit();
+            if (position != 0) {
+                addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position));
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .add(addCollectionItemFragment, "addCollectionFragment")
+                        .addToBackStack("addCollectionFragment")
+                        .commit();
+            } else {
+                addCollectionItemFragment = AddCollectionItemFragment.newInstance(new CollectionItem());
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
+                        .addToBackStack("addCollectionFragment")
+                        .commit();
+            }
         }
     }
-
 }

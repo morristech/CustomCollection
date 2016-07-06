@@ -26,12 +26,15 @@ public class CollectionItemAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return collection.getItems().size();
+        return collection.getItems().size() + 1;
     }
 
     @Override
     public CollectionItem getItem(int position) {
-        return collection.getItems().get(position);
+        if (position == 0) {
+            return null;
+        }
+        return collection.getItems().get(position - 1);
     }
 
     @Override
@@ -48,28 +51,36 @@ public class CollectionItemAdapter extends BaseAdapter {
         TextView tvDescription = (TextView)convertView.findViewById(R.id.collection_item_description);
         TextView tvValue = (TextView)convertView.findViewById(R.id.collection_item_value);
         TextView tvReference = (TextView)convertView.findViewById(R.id.collection_item_reference_index);
-        CollectionItem item = getItem(position);
-        if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
-            iv.setImageBitmap(item.getPhotos().get(0).getPhotosAsBitmap());
-        }
-        tvName.setText(item.getName());
-        if (item.getDescription().equals("")) {
+        if (position == 0) {
+            iv.setImageResource(R.drawable.greenadd);
+            tvName.setText(R.string.add);
             tvDescription.setVisibility(View.GONE);
-        } else {
-            tvDescription.setVisibility(View.VISIBLE);
-            tvDescription.setText(item.getDescription());
-        }
-        if (item.getValue() == 0D) {
             tvValue.setVisibility(View.GONE);
-        } else {
-            tvValue.setVisibility(View.VISIBLE);
-            tvValue.setText("$" + item.getValue());
-        }
-        if (item.getCustomIndexReminder().equals("")) {
             tvReference.setVisibility(View.GONE);
         } else {
-            tvReference.setVisibility(View.VISIBLE);
-            tvReference.setText(item.getCustomIndexReminder());
+            CollectionItem item = getItem(position);
+            if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
+                iv.setImageBitmap(item.getPhotos().get(0).getPhotosAsBitmap());
+            }
+            tvName.setText(item.getName());
+            if (item.getDescription().equals("")) {
+                tvDescription.setVisibility(View.GONE);
+            } else {
+                tvDescription.setVisibility(View.VISIBLE);
+                tvDescription.setText(item.getDescription());
+            }
+            if (item.getValue() == 0D) {
+                tvValue.setVisibility(View.GONE);
+            } else {
+                tvValue.setVisibility(View.VISIBLE);
+                tvValue.setText("$" + item.getValue());
+            }
+            if (item.getCustomIndexReminder().equals("")) {
+                tvReference.setVisibility(View.GONE);
+            } else {
+                tvReference.setVisibility(View.VISIBLE);
+                tvReference.setText(item.getCustomIndexReminder());
+            }
         }
         return convertView;
     }

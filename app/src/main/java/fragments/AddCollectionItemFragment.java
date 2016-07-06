@@ -18,6 +18,9 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import adapters.AddItemAdapter;
 import ca.useful.customcollection.R;
@@ -27,6 +30,7 @@ import data.CollectionItemPhoto;
 
 public class AddCollectionItemFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "AddItemFrag";
+    public static final String POSITION_BUNDLE = "positionBundle";
     private ListView listView;
     private AddItemAdapter adapter;
     private Button okButton;
@@ -77,31 +81,41 @@ public class AddCollectionItemFragment extends Fragment implements View.OnClickL
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super .onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    Uri selectedImage = imageUri;
-                    getActivity().getContentResolver().notifyChange(selectedImage, null);
-                    ContentResolver cr = getActivity().getContentResolver();
-                    Bitmap bitmap;
-                    try {
-                        bitmap = android.provider.MediaStore.Images.Media
-                                .getBitmap(cr, selectedImage);
-                        if (data.getBundleExtra("positionBundle") != null) {
-                            Bundle extra = data.getBundleExtra("positionBundle");
-                            int position = extra.getInt("position");
-                            if (position != -1) {
+                    Bundle extra = data.getBundleExtra(Bundles.REFERENCEEXTRA);
+                    if (extra != null) {
+                        CollectionItem storedItem = extra.getParcelable(Bundles.COLLECTIONITEMEXTRA);
+                        String uri = extra.getString(Bundles.IMAGEURI);
+                        Uri selectedImage = Uri.parse(uri);
+                        if (getActivity() != null) {
+                            getActivity().getContentResolver().notifyChange(selectedImage, null);
+                            ContentResolver cr = getActivity().getContentResolver();
+                            Bitmap bitmap;
+
+                            try {
+                                //edit case
+                                bitmap = android.provider.MediaStore.Images.Media
+                                        .getBitmap(cr, selectedImage);
                                 CollectionItemPhoto photo = new CollectionItemPhoto();
-                                photo.setFkCollectionItemId(item.getId());
+                                photo.setFkCollectionItemId(storedItem.getId());
                                 photo.setPhotosAsBitmap(bitmap);
-                                item.getPhotos().add(photo);
+                                photo.setPhotoUri(selectedImage.toString());
+                                storedItem.addOrReplacePhoto(photo);
+                                item = storedItem;
+                                bind();
+//                                Bundle newArgs = new Bundle();
+//                                newArgs.putParcelable(Bundles.COLLECTIONITEMEXTRA, storedItem);
+//                                setArguments(newArgs);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
+            default:
+                super .onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -124,16 +138,5 @@ public class AddCollectionItemFragment extends Fragment implements View.OnClickL
     @Override
     public void onClick(View v) {
         //ok button click event saves item: Convert Bitmap and URI to Base64 and write
-    }
-
-    public void takePhoto(int position) {
-        if (getActivity() != null) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File photo = new File(Environment.getExternalStorageDirectory(), "Pic.jpg");
-            intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                    Uri.fromFile(photo));
-            imageUri = Uri.fromFile(photo);
-            getActivity().startActivityForResult(intent, TAKE_PICTURE);
-        }
     }
 }

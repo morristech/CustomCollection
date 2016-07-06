@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void createCollectionItemPhotoTable(SQLiteDatabase db) {
-        String sql = "CREATE TABLE " + PhotoTable.TABLENAME + " (" + PhotoTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + PhotoTable.BASE64 + " TEXT NOT NULL, " + PhotoTable.FKCOLLECTIONITEMID + " INTEGER NOT NULL, " +
+        String sql = "CREATE TABLE " + PhotoTable.TABLENAME + " (" + PhotoTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + PhotoTable.BASE64 + " TEXT NOT NULL, " + PhotoTable.PHOTOURI + " TEXT, " + PhotoTable.FKCOLLECTIONITEMID + " INTEGER NOT NULL, " +
                 "FOREIGN KEY (" + PhotoTable.FKCOLLECTIONITEMID + ") REFERENCES " + CollectionItemTable.TABLENAME + " (" + CollectionItemTable.ID + "));";
         db.execSQL(sql);
     }
@@ -206,6 +206,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String ID = "Id";
         public static final String BASE64 = "Base64Photo";
         public static final String FKCOLLECTIONITEMID = "Fk_CollectionItemId";
+        public static final String PHOTOURI = "PhotoUri";
+
         public long insertPhoto(CollectionItemPhoto photo) {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues cv = new ContentValues();
@@ -214,6 +216,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             cv.put(BASE64, photo.getPhotosAsBase64());
             cv.put(FKCOLLECTIONITEMID, photo.getFkCollectionItemId());
+            cv.put(PHOTOURI, photo.getPhotoUri());
             return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         }
 
@@ -223,6 +226,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 photo.setId(cursor.getInt(cursor.getColumnIndex(ID)));
                 photo.setPhotosAsBase64(cursor.getString(cursor.getColumnIndex(BASE64)));
                 photo.setFkCollectionItemId(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONITEMID)));
+                photo.setPhotoUri(cursor.getString(cursor.getColumnIndex(PHOTOURI)));
             }
             return photo;
         }

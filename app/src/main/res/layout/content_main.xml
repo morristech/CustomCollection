@@ -12,34 +12,9 @@
     android:background="@color/stil_de_grain_yellow"
     tools:context="ca.useful.customcollection.MainActivity">
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <EditText
-        android:id="@+id/main_collection_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:layout_weight=".2"
-        android:hint="@string/new_collection_name"
-        android:textColor="@color/white"
-        android:background="@color/transparent_black_percent_25"
-        tools:text="Hello World!"
-        />
-        <ImageButton
-            android:id="@+id/main_collection_add_button"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:scaleType="fitCenter"
-            android:layout_weight=".8"
-            android:src="@drawable/add"
-            android:background="@android:color/transparent"/>
-    </LinearLayout>
-    <LinearLayout
         android:id="@+id/main_fragment_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="12dp"
         android:orientation="vertical">
         </LinearLayout>
 </LinearLayout>

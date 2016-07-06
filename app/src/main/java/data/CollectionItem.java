@@ -147,4 +147,18 @@ public class CollectionItem implements Parcelable {
             photo.setPhotosAsBitmap(decodedByte);
         }
     }
+
+    public void addOrReplacePhoto(CollectionItemPhoto photo) {
+        if (photo.getId() != -1) {
+            for (int i = 0; i < photos.size(); i++) {
+                CollectionItemPhoto p = photos.get(i);
+                if (p.getId() == photo.getId()) {
+                    photos.set(i, photo);
+                    return;
+                }
+            }
+        } else {
+            photos.add(photo);
+        }
+    }
 }

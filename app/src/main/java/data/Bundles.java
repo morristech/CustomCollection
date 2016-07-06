@@ -11,4 +11,7 @@ public class Bundles {
     public static final String COLLECTIONIDEXTRA = "ca.useful.customcollection.CollectionId";
     public static final String COLLECTIONITEMEXTRA = "ca.useful.customcollection.CollectionItem";
     public static final String COLLECTIONEXTRA = "ca.useful.customcollection.CollectionExtra";
+    public static final String POSITION_BUNDLE = "ca.useful.customcollection.PositionExtra";
+    public static final java.lang.String POSITION = "position";
+    public static final String IMAGEURI = "ca.useful.customcollection.ImageUriExtra";
 }
