@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-
 public class CollectionItemPhoto implements Parcelable {
     private int Id = -1;
     private int FkCollectionItemId = -1;
@@ -88,4 +86,5 @@ public class CollectionItemPhoto implements Parcelable {
     public void setPhotoUri(String photoUri) {
         this.photoUri = photoUri;
     }
+
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CustomCollection</string>
+    <string name="app_name">Collections</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -19,4 +19,12 @@
     <string name="photos">Photos</string>
     <string name="new_collection_name">New Collection Name</string>
     <string name="add">Add</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete_this_photo">Do you want to delete this photo?</string>
+    <string name="delete_photo">Delete Photo</string>
+    <string name="delete_item">Delete Item</string>
+    <string name="delete_this_item">Delete This Collection Item?</string>
+    <string name="delete_collection">Delete Collection</string>
+    <string name="delete_collection_confirm">Do you want to delete this collection and all its associated items and photos?</string>
 </resources>

@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:minWidth="100dp"
-    android:minHeight="100dp">
+    android:background="@color/transparent_black_percent_50"
+   >
     <ImageView
         android:id="@+id/item_gridview_imageview"
-        android:layout_width="92dp"
-        android:layout_height="92dp"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
+        android:layout_margin="8dp"
         />
 </LinearLayout>

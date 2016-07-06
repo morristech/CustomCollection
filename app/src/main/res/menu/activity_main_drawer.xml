@@ -2,35 +2,48 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-    </group>
+        <item android:title="Utilities">
+            <menu>
+                <item
+                    android:id="@+id/nav_summary"
+                    android:icon="@drawable/coins"
+                    android:title="Forecast" />
+                <item
+                    android:id="@+id/nav_novalue"
+                    android:icon="@drawable/coins"
+                    android:title="Only Items That Are $0.00" />
+                <item
+                    android:id="@+id/nav_export"
+                    android:icon="@drawable/documents5"
+                    android:title="Export" />
+                <item
+                    android:id="@+id/nav_email"
+                    android:icon="@drawable/upload127"
+                    android:title="Email" />
+                <!--<item-->
+                <!--android:id="@+id/nav_material"-->
+                <!--android:icon="@drawable/ic_menu_slideshow"-->
+                <!--android:title="Raw Material X Cost" />-->
+            </menu>
+        </item>
+        <item android:title="Settings">
+            <menu>
+                <item
+                    android:id="@+id/nav_photosave"
+                    android:icon="@drawable/ic_menu_camera"
+                    android:title="Change Photo Save Path" />
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
+                <item
+                    android:id="@+id/nav_picturesize"
+                    android:icon="@drawable/ic_menu_gallery"
+                    android:title="Edit Photo Size" />
+
+                <item
+                    android:id="@+id/nav_wipe_data"
+                    android:icon="@drawable/redcross"
+                    android:title="*** Wipe All Data ***" />
+            </menu>
+        </item>
+    </group>
 
 </menu>

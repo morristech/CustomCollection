@@ -13,12 +13,10 @@ import java.util.ArrayList;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "dbCustomCollection";
-    private static final int dbVersion = 1;
-    private Context context = null;
+    private static final int dbVersion = 4;
 
     public DatabaseHelper(Context context) {
         super(context, NAME, null, dbVersion);
-        this.context = context;
     }
 
     //create tables
@@ -32,9 +30,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //drop table if exists (tablename)
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + PhotoTable.TABLENAME);
         db.execSQL("DROP TABLE IF EXISTS " + CollectionItemTable.TABLENAME);
         db.execSQL("DROP TABLE IF EXISTS " + CollectionTable.TABLENAME);
-        db.execSQL("DROP TABLE IF EXISTS " + PhotoTable.TABLENAME);
         onCreate(db);
     }
 
@@ -52,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void createCollectionItemPhotoTable(SQLiteDatabase db) {
-        String sql = "CREATE TABLE " + PhotoTable.TABLENAME + " (" + PhotoTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + PhotoTable.BASE64 + " TEXT NOT NULL, " + PhotoTable.PHOTOURI + " TEXT, " + PhotoTable.FKCOLLECTIONITEMID + " INTEGER NOT NULL, " +
+        String sql = "CREATE TABLE " + PhotoTable.TABLENAME + " (" + PhotoTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + PhotoTable.PHOTOURI + " TEXT, " + PhotoTable.FKCOLLECTIONITEMID + " INTEGER NOT NULL, " +
                 "FOREIGN KEY (" + PhotoTable.FKCOLLECTIONITEMID + ") REFERENCES " + CollectionItemTable.TABLENAME + " (" + CollectionItemTable.ID + "));";
         db.execSQL(sql);
     }
@@ -67,6 +65,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long insertCollectionItem(CollectionItem item) {
         return new CollectionItemTable().insertCollectionItem(item);
+    }
+
+    public ArrayList<CollectionItem> getCollectionItems(int collectionId) {
+        return new CollectionItemTable().getItemsByCollectionId(collectionId);
+    }
+
+    public void deletePhoto(int photoId) {
+        new PhotoTable().deleteCollectionItemPhotosByPhotoId(photoId);
+    }
+
+    public void deleteCollectionItem(CollectionItem item) {
+        new CollectionItemTable().deleteItemByCollectionItemId(item.getId());
+    }
+
+    public void deleteCollection(Collection collection) {
+        new CollectionTable().deleteCollectionByCollectionId(collection.getId());
     }
 
     private class CollectionTable {
@@ -190,6 +204,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         public void deleteItemsByCollectionId(int collectionId) {
+            ArrayList<CollectionItem> items = getItemsByCollectionId(collectionId);
+            for (CollectionItem i : items) {
+                new PhotoTable().deleteCollectionItemPhotosByCollectionItemId(i.getId());
+            }
             SQLiteDatabase db = getWritableDatabase();
             db.delete(TABLENAME, FKCOLLECTIONID + " = ?", new String[]{Integer.toString(collectionId)});
         }
@@ -204,7 +222,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private class PhotoTable {
         public static final String TABLENAME = "tblPhotos";
         public static final String ID = "Id";
-        public static final String BASE64 = "Base64Photo";
         public static final String FKCOLLECTIONITEMID = "Fk_CollectionItemId";
         public static final String PHOTOURI = "PhotoUri";
 
@@ -214,7 +231,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (photo.getId() != -1) {
                 cv.put(ID, photo.getId());
             }
-            cv.put(BASE64, photo.getPhotosAsBase64());
             cv.put(FKCOLLECTIONITEMID, photo.getFkCollectionItemId());
             cv.put(PHOTOURI, photo.getPhotoUri());
             return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -224,7 +240,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             CollectionItemPhoto photo = new CollectionItemPhoto();
             if (cursor != null) {
                 photo.setId(cursor.getInt(cursor.getColumnIndex(ID)));
-                photo.setPhotosAsBase64(cursor.getString(cursor.getColumnIndex(BASE64)));
                 photo.setFkCollectionItemId(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONITEMID)));
                 photo.setPhotoUri(cursor.getString(cursor.getColumnIndex(PHOTOURI)));
             }
@@ -233,7 +248,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         public ArrayList<CollectionItemPhoto> processMultiple(Cursor cursor) {
             ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
-            if (cursor != null) {
+            if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 while (!cursor.isAfterLast()) {
                     photos.add(processSingle(cursor));
@@ -252,6 +267,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public void deleteCollectionItemPhotosByCollectionItemId(int collectionItemId) {
             SQLiteDatabase db = getWritableDatabase();
             db.delete(TABLENAME, FKCOLLECTIONITEMID + " = ?", new String[]{Integer.toString(collectionItemId)});
+        }
+
+        public void deleteCollectionItemPhotosByPhotoId(int photoId) {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete(TABLENAME, ID + " = ?", new String[]{Integer.toString(photoId)});
         }
     }
 }

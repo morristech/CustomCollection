@@ -1,12 +1,16 @@
 package data;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -21,7 +25,9 @@ public class CollectionItem implements Parcelable {
     private double Value = 0D;
     private int FkCollectionId = -1;
     private ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
-    public CollectionItem() {}
+
+    public CollectionItem() {
+    }
 
 
     protected CollectionItem(Parcel in) {
@@ -159,6 +165,18 @@ public class CollectionItem implements Parcelable {
             }
         } else {
             photos.add(photo);
+        }
+    }
+
+    public void populateBitmapsFromUri(Context context) {
+        for (CollectionItemPhoto photo : photos) {
+            ContentResolver cr = context.getContentResolver();
+            try {
+                photo.setPhotosAsBitmap(android.provider.MediaStore.Images.Media
+                        .getBitmap(cr, Uri.parse(photo.getPhotoUri())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

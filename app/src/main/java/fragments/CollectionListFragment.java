@@ -1,5 +1,6 @@
 package fragments;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -7,14 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-
+import android.widget.TextView;
 import java.util.ArrayList;
-
 import adapters.CollectionAdapter;
-import ca.useful.customcollection.MainActivity;
 import ca.useful.customcollection.R;
 import data.Bundles;
 import data.Collection;
@@ -23,7 +23,7 @@ import data.DatabaseHelper;
 /**
  * Created by Jeremy on 26/05/2016.
  */
-public class CollectionListFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class CollectionListFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private static final String TAG = "CollectionListFrag";
     private ArrayList<Collection> collections = new ArrayList<>();
     private ListView listView;
@@ -71,6 +71,7 @@ public class CollectionListFragment extends Fragment implements View.OnClickList
             btnAddCollection = (ImageButton) getView().findViewById(R.id.main_collection_add_button);
             btnAddCollection.setOnClickListener(this);
             listView.setOnItemClickListener(this);
+            listView.setOnItemLongClickListener(this);
         }
     }
 
@@ -129,5 +130,40 @@ public class CollectionListFragment extends Fragment implements View.OnClickList
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            if (getActivity() != null) {
+                final Dialog dialog = new Dialog(getActivity());
+                dialog.setContentView(R.layout.dialog_yes_no);
+                Button btnYes = (Button)dialog.findViewById(R.id.dialog_yes_no_button_yes);
+                Button btnNo = (Button)dialog.findViewById(R.id.dialog_yes_no_button_no);
+                TextView description = (TextView)dialog.findViewById(R.id.dialog_yes_no_description);
+                TextView title = (TextView)dialog.findViewById(R.id.dialog_yes_no_title);
+                title.setText(R.string.delete_collection);
+                description.setText(R.string.delete_collection_confirm);
+                btnNo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+                btnYes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (getActivity() != null) {
+                            DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                            databaseHelper.deleteCollection(collections.get(position));
+                            databaseHelper.close();
+                            collections.remove(position);
+                            adapter.notifyDataSetChanged();
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                dialog.show();
+            }
+        return true;
     }
 }

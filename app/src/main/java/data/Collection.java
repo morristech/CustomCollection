@@ -1,5 +1,6 @@
 package data;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -102,5 +103,13 @@ public class Collection implements Parcelable {
 
     public void setItems(ArrayList<CollectionItem> items) {
         Items = items;
+    }
+
+    public void processPhotos(Context context) {
+        if (context != null) {
+            for (CollectionItem item : getItems()) {
+                item.populateBitmapsFromUri(context);
+            }
+        }
     }
 }
