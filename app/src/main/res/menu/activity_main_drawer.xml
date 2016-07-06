@@ -7,11 +7,11 @@
                 <item
                     android:id="@+id/nav_summary"
                     android:icon="@drawable/coins"
-                    android:title="Forecast" />
+                    android:title="Summary" />
                 <item
                     android:id="@+id/nav_novalue"
                     android:icon="@drawable/coins"
-                    android:title="Only Items That Are $0.00" />
+                    android:title="Quick Edit Missing Values" />
                 <item
                     android:id="@+id/nav_export"
                     android:icon="@drawable/documents5"
@@ -20,14 +20,14 @@
                     android:id="@+id/nav_email"
                     android:icon="@drawable/upload127"
                     android:title="Email" />
-                <!--<item-->
-                <!--android:id="@+id/nav_material"-->
-                <!--android:icon="@drawable/ic_menu_slideshow"-->
-                <!--android:title="Raw Material X Cost" />-->
             </menu>
         </item>
         <item android:title="Settings">
             <menu>
+                <item
+                    android:id="@+id/nav_instructions_thanks"
+                    android:icon="@drawable/instructions"
+                    android:title="Disclaimers/Thank Yous" />
                 <item
                     android:id="@+id/nav_photosave"
                     android:icon="@drawable/ic_menu_camera"

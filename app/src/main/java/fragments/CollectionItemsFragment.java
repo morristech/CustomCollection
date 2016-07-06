@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 import adapters.CollectionItemAdapter;
+import adapters.MissingValueAdapter;
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.CollectionItem;
@@ -22,6 +23,7 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     private TextView tvTitle;
     private Collection collection;
     private CollectionItemAdapter adapter;
+    private MissingValueAdapter missingValueAdapter;
     private AddCollectionItemFragment addCollectionItemFragment;
 
     //TODO Compare, Quick Search Title, Checkbox Delete, OCR Text, Add Fancy Graphs, Stock Prices, Raw Material Make, Related Products, Grade
@@ -56,37 +58,58 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
         if (getActivity() != null) {
             gridView = (GridView)getView().findViewById(R.id.collection_item_gridview);
             tvTitle = (TextView)getView().findViewById(R.id.fragment_collection_item_title);
+
             DatabaseHelper helper = new DatabaseHelper(getActivity());
-            collection.setItems(helper.getCollectionItems(collection.getId()));
-            helper.close();
-            collection.processPhotos(getActivity());
-            if (collection != null) {
-                adapter = new CollectionItemAdapter(getActivity(), collection);
-                gridView.setAdapter(adapter);
-                gridView.setOnItemClickListener(this);
-                gridView.setOnItemLongClickListener(this);
-                tvTitle.setText(collection.getTitle());
+            if (collection.getId() != -1) {
+                collection.setItems(helper.getCollectionItems(collection.getId()));
+                collection.processPhotos(getActivity());
+                if (collection != null) {
+                    adapter = new CollectionItemAdapter(getActivity(), collection);
+                    gridView.setAdapter(adapter);
+                    gridView.setOnItemClickListener(this);
+                    gridView.setOnItemLongClickListener(this);
+                    tvTitle.setText(collection.getTitle());
+                }
+            } else {
+                collection.setItems(helper.getCollectionItemsWithNoAssignedValue());
+                collection.processPhotos(getActivity());
+                if (collection != null) {
+                    missingValueAdapter = new MissingValueAdapter(getActivity(), collection);
+                    gridView.setAdapter(adapter);
+                    gridView.setOnItemClickListener(this);
+                    gridView.setOnItemLongClickListener(this);
+                    tvTitle.setText(collection.getTitle());
+                }
             }
+            helper.close();
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (getActivity() != null) {
-            if (position != 0) {
-                addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position-1));
+            if (missingValueAdapter != null) {
+                addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position));
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
                         .addToBackStack("addCollectionFragment")
                         .commit();
             } else {
-                CollectionItem item = new CollectionItem();
-                item.setFkCollectionId(collection.getId());
-                addCollectionItemFragment = AddCollectionItemFragment.newInstance(item);
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
-                        .addToBackStack("addCollectionFragment")
-                        .commit();
+                if (position != 0) {
+                    addCollectionItemFragment = AddCollectionItemFragment.newInstance(collection.getItems().get(position - 1));
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
+                            .addToBackStack("addCollectionFragment")
+                            .commit();
+                } else {
+                    CollectionItem item = new CollectionItem();
+                    item.setFkCollectionId(collection.getId());
+                    addCollectionItemFragment = AddCollectionItemFragment.newInstance(item);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_fragment_layout, addCollectionItemFragment, "addCollectionFragment")
+                            .addToBackStack("addCollectionFragment")
+                            .commit();
+                }
             }
         }
     }
@@ -95,34 +118,65 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         if (position > 0) {
             if (getActivity() != null) {
-                final Dialog dialog = new Dialog(getActivity());
-                dialog.setContentView(R.layout.dialog_yes_no);
-                Button btnYes = (Button)dialog.findViewById(R.id.dialog_yes_no_button_yes);
-                Button btnNo = (Button)dialog.findViewById(R.id.dialog_yes_no_button_no);
-                TextView description = (TextView)dialog.findViewById(R.id.dialog_yes_no_description);
-                TextView title = (TextView)dialog.findViewById(R.id.dialog_yes_no_title);
-                title.setText(R.string.delete_item);
-                description.setText(R.string.delete_this_item);
-                btnNo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                btnYes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (getActivity() != null) {
-                            DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-                            databaseHelper.deleteCollectionItem(collection.getItems().get(position-1));
-                            databaseHelper.close();
-                            collection.getItems().remove(position-1);
-                            adapter.notifyDataSetChanged();
+                if (missingValueAdapter != null) {
+                    final Dialog dialog = new Dialog(getActivity());
+                    dialog.setContentView(R.layout.dialog_yes_no);
+                    Button btnYes = (Button) dialog.findViewById(R.id.dialog_yes_no_button_yes);
+                    Button btnNo = (Button) dialog.findViewById(R.id.dialog_yes_no_button_no);
+                    TextView description = (TextView) dialog.findViewById(R.id.dialog_yes_no_description);
+                    TextView title = (TextView) dialog.findViewById(R.id.dialog_yes_no_title);
+                    title.setText(R.string.delete_item);
+                    description.setText(R.string.delete_this_item);
+                    btnNo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
                             dialog.dismiss();
                         }
-                    }
-                });
-                dialog.show();
+                    });
+                    btnYes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (getActivity() != null) {
+                                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                                databaseHelper.deleteCollectionItem(collection.getItems().get(position));
+                                databaseHelper.close();
+                                collection.getItems().remove(position);
+                                missingValueAdapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                    dialog.show();
+                } else {
+                    final Dialog dialog = new Dialog(getActivity());
+                    dialog.setContentView(R.layout.dialog_yes_no);
+                    Button btnYes = (Button) dialog.findViewById(R.id.dialog_yes_no_button_yes);
+                    Button btnNo = (Button) dialog.findViewById(R.id.dialog_yes_no_button_no);
+                    TextView description = (TextView) dialog.findViewById(R.id.dialog_yes_no_description);
+                    TextView title = (TextView) dialog.findViewById(R.id.dialog_yes_no_title);
+                    title.setText(R.string.delete_item);
+                    description.setText(R.string.delete_this_item);
+                    btnNo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+                    btnYes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (getActivity() != null) {
+                                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                                databaseHelper.deleteCollectionItem(collection.getItems().get(position - 1));
+                                databaseHelper.close();
+                                collection.getItems().remove(position - 1);
+                                adapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                    dialog.show();
+                }
             }
         }
         return true;

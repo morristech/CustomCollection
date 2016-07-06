@@ -112,4 +112,12 @@ public class Collection implements Parcelable {
             }
         }
     }
+
+    public Double getValueSum() {
+        double total = 0;
+        for (CollectionItem item : getItems()) {
+            total += item.getValue();
+        }
+        return total;
+    }
 }

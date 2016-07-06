@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -83,6 +84,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         new CollectionTable().deleteCollectionByCollectionId(collection.getId());
     }
 
+    public void deleteAllCollections() {
+        new CollectionTable().deleteAll();
+    }
+
+    public ArrayList<CollectionItem> getCollectionItemsWithNoAssignedValue() {
+        return new CollectionItemTable().getItemsWithMissingValues();
+    }
+
     private class CollectionTable {
         public static final String TABLENAME = "tblCollectionTable";
         public static final String ID = "Id";
@@ -138,6 +147,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.delete(TABLENAME, ID + " = ?", new String[]{Integer.toString(collectionId)});
         }
 
+        public void deleteAll() {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete(TABLENAME, null, null);
+        }
     }
 
     private class CollectionItemTable {
@@ -196,6 +209,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.close();
             }
             return items;
+        }
+
+        public ArrayList<CollectionItem> getItemsWithMissingValues() {
+            SQLiteDatabase db = getReadableDatabase();
+            DecimalFormat df = new DecimalFormat("#.00");
+            return processMultiple(db.query(TABLENAME, null, VALUE + " = ? OR " + VALUE + " = ?", new String[]{Double.toString(0.00D), Double.toString(0.0D)}, null, null, null));
         }
 
         public ArrayList<CollectionItem> getItemsByCollectionId(int collectionId) {

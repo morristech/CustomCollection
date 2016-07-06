@@ -184,7 +184,7 @@ public class AddItemAdapter extends BaseAdapter {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s != null && !s.toString().equals("")) {
+                        if (s != null && !s.toString().equals("") && !s.toString().equals(".")) {
                             item.setValue(Double.parseDouble(s.toString()));
                         } else if (s.equals("")) {
                             item.setValue(0);

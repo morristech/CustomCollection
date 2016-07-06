@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center|top"
+    android:background="@drawable/frame"
+    android:layout_margin="3dp"
+    android:minHeight="200dp">
+
+    <TextView
+        android:id="@+id/collection_summary_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:minHeight="50dp"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/collection_summary_item_count_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="3dp"
+        android:gravity="center"
+        android:minHeight="50dp"
+        android:layout_weight=".67"
+        android:text="@string/item_count"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/collection_summary_item_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:gravity="center"
+            android:layout_weight=".33"
+            android:minHeight="50dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/collection_summary_item_value_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:gravity="center"
+            android:layout_weight=".67"
+            android:minHeight="50dp"
+            android:text="@string/sum_of_values"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/collection_summary_item_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:gravity="center"
+            android:layout_weight=".33"
+            android:minHeight="50dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="46dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/collection_summary_item_export"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:gravity="center"
+            android:minHeight="46dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:text="@string/export_as"/>
+    </LinearLayout>
+
+</LinearLayout>

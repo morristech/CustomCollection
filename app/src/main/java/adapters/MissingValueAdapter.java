@@ -14,29 +14,23 @@ import ca.useful.customcollection.R;
 import data.Collection;
 import data.CollectionItem;
 
-/**
- * Created by Jeremy on 26/05/2016.
- */
-public class CollectionItemAdapter extends BaseAdapter {
+public class MissingValueAdapter  extends BaseAdapter {
     private Context context;
     private Collection collection;
 
-    public CollectionItemAdapter(Context context, Collection collection) {
+    public MissingValueAdapter(Context context, Collection collection) {
         this.context = context;
         this.collection = collection;
     }
 
     @Override
     public int getCount() {
-        return collection.getItems().size() + 1;
+        return collection.getItems().size();
     }
 
     @Override
     public CollectionItem getItem(int position) {
-        if (position == 0) {
-            return null;
-        }
-        return collection.getItems().get(position - 1);
+        return collection.getItems().get(position);
     }
 
     @Override
@@ -53,31 +47,22 @@ public class CollectionItemAdapter extends BaseAdapter {
         TextView tvDescription = (TextView) convertView.findViewById(R.id.collection_item_description);
         TextView tvValue = (TextView) convertView.findViewById(R.id.collection_item_value);
         TextView tvReference = (TextView) convertView.findViewById(R.id.collection_item_reference_index);
-        if (position == 0) {
-            iv.setImageResource(R.drawable.greenadd);
-            tvName.setText(R.string.add);
-            tvDescription.setVisibility(View.GONE);
-            tvValue.setVisibility(View.GONE);
-            tvReference.setVisibility(View.GONE);
-        } else {
-            CollectionItem item = getItem(position);
-            if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
-                iv.setImageBitmap(item.getPhotos().get(0).getPhotosAsBitmap());
-            }
-            tvName.setText(item.getName());
-
-            tvDescription.setVisibility(View.VISIBLE);
-            tvDescription.setText(item.getDescription());
-
-            DecimalFormat df = new DecimalFormat("#.00");
-            tvValue.setVisibility(View.VISIBLE);
-            tvValue.setText("$" + df.format(item.getValue()));
-
-            tvReference.setVisibility(View.VISIBLE);
-            tvReference.setText(item.getCustomIndexReminder());
-
+        CollectionItem item = getItem(position);
+        if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
+            iv.setImageBitmap(item.getPhotos().get(0).getPhotosAsBitmap());
         }
+        tvName.setText(item.getName());
+
+        tvDescription.setVisibility(View.VISIBLE);
+        tvDescription.setText(item.getDescription());
+
+        DecimalFormat df = new DecimalFormat("#.00");
+        tvValue.setVisibility(View.VISIBLE);
+        tvValue.setText("$" + df.format(item.getValue()));
+
+        tvReference.setVisibility(View.VISIBLE);
+        tvReference.setText(item.getCustomIndexReminder());
+
         return convertView;
     }
-
 }
