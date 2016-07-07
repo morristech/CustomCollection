@@ -253,7 +253,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public ArrayList<CollectionItem> getItemsWithMissingValues() {
             SQLiteDatabase db = getReadableDatabase();
             DecimalFormat df = new DecimalFormat("#.00");
-            return processMultiple(db.query(TABLENAME, null, VALUE + " = ? OR " + VALUE + " = ?", new String[]{Double.toString(0.00D), Double.toString(0.0D)}, null, null, null));
+            return processMultiple(db.query(TABLENAME, null, VALUE + " = ? OR " + VALUE + " = ? OR " + VALUE + " = ?", new String[]{"0.00", "0.0", ".00"}, null, null, null));
         }
 
         public ArrayList<CollectionItem> getItemsByCollectionId(int collectionId) {

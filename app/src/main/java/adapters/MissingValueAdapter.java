@@ -7,9 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.text.DecimalFormat;
-
+import java.util.ArrayList;
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.CollectionItem;
@@ -17,20 +16,22 @@ import data.CollectionItem;
 public class MissingValueAdapter  extends BaseAdapter {
     private Context context;
     private Collection collection;
+    ArrayList<CollectionItem> items = new ArrayList<>();
 
     public MissingValueAdapter(Context context, Collection collection) {
         this.context = context;
         this.collection = collection;
+        this.items = collection.getItems();
     }
 
     @Override
     public int getCount() {
-        return collection.getItems().size();
+        return items.size();
     }
 
     @Override
     public CollectionItem getItem(int position) {
-        return collection.getItems().get(position);
+        return items.get(position);
     }
 
     @Override

@@ -7,9 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.text.DecimalFormat;
-
+import java.util.ArrayList;
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.CollectionItem;
@@ -20,15 +19,16 @@ import data.CollectionItem;
 public class CollectionItemAdapter extends BaseAdapter {
     private Context context;
     private Collection collection;
-
+    ArrayList<CollectionItem> items = new ArrayList<>();
     public CollectionItemAdapter(Context context, Collection collection) {
         this.context = context;
         this.collection = collection;
+        this.items = collection.getItems();
     }
 
     @Override
     public int getCount() {
-        return collection.getItems().size() + 1;
+        return items.size() + 1;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class CollectionItemAdapter extends BaseAdapter {
         if (position == 0) {
             return null;
         }
-        return collection.getItems().get(position - 1);
+        return items.get(position - 1);
     }
 
     @Override
@@ -79,5 +79,4 @@ public class CollectionItemAdapter extends BaseAdapter {
         }
         return convertView;
     }
-
 }

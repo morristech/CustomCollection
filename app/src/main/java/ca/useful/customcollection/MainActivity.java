@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,6 +173,7 @@ public class MainActivity extends FragmentActivity
                     .commit();
         } else if (id == R.id.nav_picturesize) {
             //setting to change photo size in grids
+            Toast.makeText(this, R.string.photo_size_error, Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_wipe_data) {
             //wipes all user data on positive prompt
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

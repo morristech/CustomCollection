@@ -20,7 +20,7 @@ import data.DatabaseHelper;
 public class CollectionItemsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private static final String TAG = "CollectionItemsFrag";
     private GridView gridView;
-    private TextView tvTitle;
+    private TextView etTitle;
     private Collection collection;
     private CollectionItemAdapter adapter;
     private MissingValueAdapter missingValueAdapter;
@@ -57,7 +57,7 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     private void setUpGridView() {
         if (getActivity() != null) {
             gridView = (GridView)getView().findViewById(R.id.collection_item_gridview);
-            tvTitle = (TextView)getView().findViewById(R.id.fragment_collection_item_title);
+            etTitle = (TextView) getView().findViewById(R.id.fragment_collection_item_search);
 
             DatabaseHelper helper = new DatabaseHelper(getActivity());
             if (collection.getId() != -1) {
@@ -68,17 +68,17 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
                     gridView.setAdapter(adapter);
                     gridView.setOnItemClickListener(this);
                     gridView.setOnItemLongClickListener(this);
-                    tvTitle.setText(collection.getTitle());
+                    etTitle.setText(collection.getTitle());
                 }
             } else {
                 collection.setItems(helper.getCollectionItemsWithNoAssignedValue());
                 collection.processPhotos(getActivity());
                 if (collection != null) {
                     missingValueAdapter = new MissingValueAdapter(getActivity(), collection);
-                    gridView.setAdapter(adapter);
+                    gridView.setAdapter(missingValueAdapter);
                     gridView.setOnItemClickListener(this);
                     gridView.setOnItemLongClickListener(this);
-                    tvTitle.setText(collection.getTitle());
+                    etTitle.setText(collection.getTitle());
                 }
             }
             helper.close();
