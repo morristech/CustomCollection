@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight=".67"
-        android:background="@color/transparent_black_percent_50"
         android:textStyle="italic"
         android:textSize="16sp"
         android:gravity="center|left"

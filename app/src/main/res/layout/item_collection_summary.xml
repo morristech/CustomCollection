@@ -94,6 +94,7 @@
             android:padding="3dp"
             android:gravity="center"
             android:minHeight="46dp"
+            android:background="@android:color/transparent"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:textSize="14sp"

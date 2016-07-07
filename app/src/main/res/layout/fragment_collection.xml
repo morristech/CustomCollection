@@ -16,7 +16,8 @@
             android:layout_weight=".2"
             android:hint="@string/new_collection_name"
             android:textColor="@color/white"
-            android:background="@color/transparent_black_percent_25"
+            android:textColorHint="@color/transparent_white_percent_25"
+            android:background="@color/transparent_black_percent_50"
             tools:text="Hello World!"
             />
         <ImageButton
@@ -26,14 +27,15 @@
             android:scaleType="fitCenter"
             android:layout_weight=".8"
             android:src="@drawable/greenadd"
-            android:background="@color/transparent_black_percent_25"/>
+            android:background="@color/transparent_black_percent_50"
+            />
     </LinearLayout>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:id="@+id/collection_listview"
-        android:background="@color/transparent_white_percent_50"
+        android:background="@color/transparent_black_percent_50"
         android:divider="@android:color/transparent"
         android:dividerHeight="3dp"
         ></ListView>
