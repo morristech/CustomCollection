@@ -31,4 +31,9 @@
     <string name="export_as">Export Collection...</string>
     <string name="item_count">Item Count:</string>
     <string name="sum_of_values">Sum of Values:</string>
+    <string name="disclaimers_and_thank_you">Disclaimers and Thank You</string>
+    <string name="disclaimer">Certain Aspects of this Application May Not Work as Intended Across Devices.\nI am made this app for the joy of collecting things, if you have any suggestions, use the suggestion box in app.\nI may also not always be efficient at fixing bugs but I\'ll take the bugs seriously</string>
+    <string name="thank_you">Thank you to jzedlitz for the chest posted in Creative Commons.\nThank you to freepik for some of the icons.</string>
+    <string name="delete_all">Delete All Collections and Their Associated Items?</string>
+    <string name="delete_all_title">Delete All Collections</string>
 </resources>

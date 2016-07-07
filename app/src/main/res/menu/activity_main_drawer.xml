@@ -12,14 +12,6 @@
                     android:id="@+id/nav_novalue"
                     android:icon="@drawable/coins"
                     android:title="Quick Edit Missing Values" />
-                <item
-                    android:id="@+id/nav_export"
-                    android:icon="@drawable/documents5"
-                    android:title="Export" />
-                <item
-                    android:id="@+id/nav_email"
-                    android:icon="@drawable/upload127"
-                    android:title="Email" />
             </menu>
         </item>
         <item android:title="Settings">
@@ -28,10 +20,6 @@
                     android:id="@+id/nav_instructions_thanks"
                     android:icon="@drawable/instructions"
                     android:title="Disclaimers/Thank Yous" />
-                <item
-                    android:id="@+id/nav_photosave"
-                    android:icon="@drawable/ic_menu_camera"
-                    android:title="Change Photo Save Path" />
 
                 <item
                     android:id="@+id/nav_picturesize"

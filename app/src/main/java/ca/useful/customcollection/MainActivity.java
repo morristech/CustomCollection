@@ -1,7 +1,6 @@
 package ca.useful.customcollection;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,7 +13,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -169,20 +170,21 @@ public class MainActivity extends FragmentActivity
                     .addToBackStack("missingCollectionItems")
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit();
-        } else if (id == R.id.nav_photosave) {
-            //setting to change photo save path
         } else if (id == R.id.nav_picturesize) {
             //setting to change photo size in grids
         } else if (id == R.id.nav_wipe_data) {
             //wipes all user data on positive prompt
-            final Dialog dialog = new Dialog(MainActivity.this);
-            dialog.setContentView(R.layout.dialog_yes_no);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View wipeView = inflater.inflate(R.layout.dialog_yes_no, null);
+            builder.setView(wipeView);
+            final AlertDialog dialog = builder.show();
             Button btnYes = (Button) dialog.findViewById(R.id.dialog_yes_no_button_yes);
             Button btnNo = (Button) dialog.findViewById(R.id.dialog_yes_no_button_no);
             TextView description = (TextView) dialog.findViewById(R.id.dialog_yes_no_description);
             TextView title = (TextView) dialog.findViewById(R.id.dialog_yes_no_title);
-            title.setText(R.string.delete_item);
-            description.setText(R.string.delete_this_item);
+            title.setText(R.string.delete_all_title);
+            description.setText(R.string.delete_all);
             btnNo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -202,12 +204,19 @@ public class MainActivity extends FragmentActivity
 
             });
 
-        } else if (id == R.id.nav_export) {
-            //exports collection in different format
-        } else if (id == R.id.nav_email) {
-
         } else if (id == R.id.nav_instructions_thanks) {
-
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View dialogView = inflater.inflate(R.layout.dialog_disclaimer_thank_you, null);
+            builder.setView(dialogView);
+            final AlertDialog dialog = builder.show();
+            Button btnOk = (Button)dialog.findViewById(R.id.dialog_disclaimer_button);
+            btnOk.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

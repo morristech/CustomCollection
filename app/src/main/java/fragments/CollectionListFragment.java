@@ -1,9 +1,9 @@
 package fragments;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,8 +135,11 @@ public class CollectionListFragment extends Fragment implements View.OnClickList
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
             if (getActivity() != null) {
-                final Dialog dialog = new Dialog(getActivity());
-                dialog.setContentView(R.layout.dialog_yes_no);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                View dialogView = inflater.inflate(R.layout.dialog_yes_no, null);
+                builder.setView(dialogView);
+                final AlertDialog dialog = builder.show();
                 Button btnYes = (Button)dialog.findViewById(R.id.dialog_yes_no_button_yes);
                 Button btnNo = (Button)dialog.findViewById(R.id.dialog_yes_no_button_no);
                 TextView description = (TextView)dialog.findViewById(R.id.dialog_yes_no_description);
