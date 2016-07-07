@@ -5,9 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * Created by Jeremy on 26/05/2016.
@@ -92,6 +99,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return new CollectionItemTable().getItemsWithMissingValues();
     }
 
+    public void writeCSV(int collectionId) {
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "");
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        File csv = new File(exportDir, "collections_" + sdf.format(Calendar.getInstance().getTime()) + ".csv");
+        try {
+            csv.createNewFile();
+            CSVWriter writer = new CSVWriter(new FileWriter(csv));
+            new CollectionTable().writeCSV(writer, collectionId);
+            writer.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private class CollectionTable {
         public static final String TABLENAME = "tblCollectionTable";
         public static final String ID = "Id";
@@ -150,6 +174,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public void deleteAll() {
             SQLiteDatabase db = getWritableDatabase();
             db.delete(TABLENAME, null, null);
+        }
+
+        public void writeCSV(CSVWriter writer, int collectionId) {
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(TABLENAME, null, ID + " = ?", new String[]{Integer.toString(collectionId)}, null, null, null);
+            writer.writeNext(cursor.getColumnNames());
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String[] entry = {Integer.toString(cursor.getInt(cursor.getColumnIndex(ID))), cursor.getString(cursor.getColumnIndex(NAME)), cursor.getString(cursor.getColumnIndex(DESCRIPTION)), cursor.getString(cursor.getColumnIndex(BASEPHOTO))};
+                writer.writeNext(entry);
+                cursor.moveToNext();
+            }
+            cursor.close();
+            new CollectionItemTable().writeCSV(writer, collectionId);
+
         }
     }
 
@@ -235,6 +274,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             SQLiteDatabase db = getWritableDatabase();
             new PhotoTable().deleteCollectionItemPhotosByCollectionItemId(collectionItemId);
             db.delete(TABLENAME, ID + " = ?", new String[]{Integer.toString(collectionItemId)});
+        }
+
+        public void writeCSV(CSVWriter writer, int collectionId) {
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(TABLENAME, null, FKCOLLECTIONID + " = ?", new String[]{Integer.toString(collectionId)}, null, null, null);
+            writer.writeNext(cursor.getColumnNames());
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String entry[] = {Integer.toString(cursor.getInt(cursor.getColumnIndex(ID))), cursor.getString(cursor.getColumnIndex(NAME)), cursor.getString(cursor.getColumnIndex(DESCRIPTION)),
+                cursor.getString(cursor.getColumnIndex(CUSTOMINDEX)), Double.toString(cursor.getDouble(cursor.getColumnIndex(VALUE))), Integer.toString(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONID)))};
+                writer.writeNext(entry);
+                cursor.moveToNext();
+            }
+            cursor.close();
         }
     }
 

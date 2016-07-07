@@ -2,12 +2,15 @@ package fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -87,7 +90,29 @@ public class CollectionSummaryFragment extends Fragment {
                 tvCount.setText(Integer.toString(collection.getItems().size()));
                 DecimalFormat df = new DecimalFormat("#.00");
                 tvValue.setText("$" + df.format(collection.getValueSum()));
-                btnExport.setOnClickListener(this);
+                btnExport.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if (getActivity() != null) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            LayoutInflater inflater = LayoutInflater.from(getActivity());
+                            View dialogView = inflater.inflate(R.layout.dialog_export, null);
+                            builder.setView(dialogView);
+                            final AlertDialog dialog = builder.show();
+                            ListView lv = (ListView)dialog.findViewById(R.id.dialog_export_listview);
+                            final ExportAdapter adapter = new ExportAdapter(collection.getId());
+                            lv.setAdapter(adapter);
+                            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    dialog.dismiss();
+                                    adapter.performPositionClick(position);
+                                }
+                            });
+                        }
+                    }
+                });
             }
 
             return convertView;
@@ -96,6 +121,59 @@ public class CollectionSummaryFragment extends Fragment {
         @Override
         public void onClick(View v) {
 
+        }
+    }
+
+    protected class ExportAdapter extends BaseAdapter {
+        int collectionId;
+
+        public ExportAdapter(int collectionId) {
+            this.collectionId = collectionId;
+        }
+
+        @Override
+        public int getCount() {
+            return 1;
+        }
+
+        @Override
+        public String getItem(int position) {
+            switch(position) {
+                case 0:
+                    return "CSV";
+                default:
+                    return "N/A";
+            }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (getActivity() != null) {
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                convertView = inflater.inflate(R.layout.item_textview, parent, false);
+                TextView tv = (TextView)convertView.findViewById(R.id.item_textview_text);
+                tv.setText(getItem(position));
+            }
+            return convertView;
+        }
+
+        protected void performPositionClick(int position) {
+            switch (position) {
+                case 0:
+                    //csv
+                    DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                    databaseHelper.writeCSV(collectionId);
+                    databaseHelper.close();
+                    break;
+                default:
+
+                    break;
+            }
         }
     }
 }
