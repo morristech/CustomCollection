@@ -256,6 +256,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 item.setValue(cursor.getDouble(cursor.getColumnIndex(VALUE)));
                 item.setFkMaterialId(cursor.getInt(cursor.getColumnIndex(FKMATERIALID)));
                 item.setPhotos(new PhotoTable().getCollectionItemPhotosByCollectionItemId(item.getId()));
+                if (item.getFkMaterialId() != -1) {
+                    item.setMaterial(new MaterialTable().getMaterialByMaterialId(item.getFkMaterialId()));
+                }
             }
             return item;
         }

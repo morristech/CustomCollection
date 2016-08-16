@@ -25,6 +25,7 @@ public class CollectionItem implements Parcelable {
     private double Value = 0D;
     private int FkCollectionId = -1;
     private int FkMaterialId = -1;
+    private Material material = new Material();
     private ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
 
     public CollectionItem() {
@@ -40,6 +41,7 @@ public class CollectionItem implements Parcelable {
         FkCollectionId = in.readInt();
         FkMaterialId = in.readInt();
         in.readTypedList(photos, CollectionItemPhoto.CREATOR);
+        material = in.readParcelable(Material.class.getClassLoader());
     }
 
     @Override
@@ -52,6 +54,7 @@ public class CollectionItem implements Parcelable {
         dest.writeInt(FkCollectionId);
         dest.writeInt(FkMaterialId);
         dest.writeTypedList(photos);
+        dest.writeParcelable(material, flags);
     }
 
     @Override
@@ -133,6 +136,14 @@ public class CollectionItem implements Parcelable {
 
     public void setPhotos(ArrayList<CollectionItemPhoto> photos) {
         this.photos = photos;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     public void populateBase64FromBitmap() {

@@ -53,12 +53,14 @@ public class CollectionItemAdapter extends BaseAdapter {
         TextView tvDescription = (TextView) convertView.findViewById(R.id.collection_item_description);
         TextView tvValue = (TextView) convertView.findViewById(R.id.collection_item_value);
         TextView tvReference = (TextView) convertView.findViewById(R.id.collection_item_reference_index);
+        TextView tvMaterial = (TextView)convertView.findViewById(R.id.collection_item_material);
         if (position == 0) {
             iv.setImageResource(R.drawable.greenadd);
             tvName.setText(R.string.add);
             tvDescription.setVisibility(View.GONE);
             tvValue.setVisibility(View.GONE);
             tvReference.setVisibility(View.GONE);
+            tvMaterial.setVisibility(View.GONE);
         } else {
             CollectionItem item = getItem(position);
             if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
@@ -76,6 +78,8 @@ public class CollectionItemAdapter extends BaseAdapter {
             tvReference.setVisibility(View.VISIBLE);
             tvReference.setText(item.getCustomIndexReminder());
 
+            tvMaterial.setVisibility(View.VISIBLE);
+            tvMaterial.setText(item.getMaterial().getName());
         }
         return convertView;
     }

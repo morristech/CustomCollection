@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center|top"
+    android:gravity="center"
     android:background="@drawable/frame"
     android:layout_margin="3dp"
-    android:minHeight="200dp"
-    android:orientation="vertical">
+    android:minHeight="225dp"
+    android:orientation="vertical"
+    >
 
     <ImageView
         android:id="@+id/collection_item_imageview"
@@ -59,4 +60,12 @@
             android:textColor="@color/white"
             android:textSize="14sp" />
     </LinearLayout>
+    <TextView
+        android:id="@+id/collection_item_material"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
 </LinearLayout>
