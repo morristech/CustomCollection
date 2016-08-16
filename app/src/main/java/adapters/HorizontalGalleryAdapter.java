@@ -27,7 +27,7 @@ public class HorizontalGalleryAdapter extends  RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (position == 0) {
-            ((PhotoViewHolder)holder).img.setImageResource(R.drawable.greenadd);
+            ((PhotoViewHolder)holder).img.setImageResource(R.drawable.add);
         } else {
             ((PhotoViewHolder)holder).img.setImageBitmap(item.getPhotos().get(position-1).getPhotosAsBitmap());
         }
