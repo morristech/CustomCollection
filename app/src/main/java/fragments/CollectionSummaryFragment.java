@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.DatabaseHelper;
+import utilities.PDFUtilities;
 
 public class CollectionSummaryFragment extends Fragment {
 
@@ -179,9 +180,7 @@ public class CollectionSummaryFragment extends Fragment {
                     databaseHelper.close();
                     break;
                 case 1:
-                    DatabaseHelper dataHelper = new DatabaseHelper(getActivity());
-                    dataHelper.writePDF(collectionId);
-                    dataHelper.close();
+                    PDFUtilities.writePDF(getActivity(), collectionId);
                 default:
 
                     break;
