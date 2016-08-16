@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="3">
+    <TextView
+        android:id="@+id/item_material_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.75"
+        android:textStyle="italic"
+        android:textSize="14sp"
+        android:gravity="center|left"
+        android:textColor="@color/transparent_white_percent_50"
+        tools:text="Hello World"
+        />
+    <Spinner
+        android:id="@+id/item_material_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center|left"
+        android:layout_weight="1.25"></Spinner>
+
+
+    <ImageButton
+        android:id="@+id/item_material_add_button"
+        android:layout_width="32dp"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/addnocamera"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"/>
+</LinearLayout>

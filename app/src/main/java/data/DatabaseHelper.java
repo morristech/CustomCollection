@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
+import android.text.Editable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -21,7 +22,7 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "dbCustomCollection";
-    private static final int dbVersion = 4;
+    private static final int dbVersion = 7;
 
     public DatabaseHelper(Context context) {
         super(context, NAME, null, dbVersion);
@@ -31,6 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         createCollectionTable(db);
+        createMaterialTable(db);
         createCollectionItemTable(db);
         createCollectionItemPhotoTable(db);
     }
@@ -39,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + PhotoTable.TABLENAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MaterialTable.TABLENAME);
         db.execSQL("DROP TABLE IF EXISTS " + CollectionItemTable.TABLENAME);
         db.execSQL("DROP TABLE IF EXISTS " + CollectionTable.TABLENAME);
         onCreate(db);
@@ -52,9 +55,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void createCollectionItemTable(SQLiteDatabase db) {
         String sql = "CREATE TABLE " + CollectionItemTable.TABLENAME + " (" + CollectionItemTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + CollectionItemTable.NAME + " TEXT NOT NULL, " + CollectionItemTable.DESCRIPTION + " TEXT, " +
-                CollectionItemTable.CUSTOMINDEX + " TEXT, " + CollectionItemTable.VALUE + " REAL, " + CollectionItemTable.FKCOLLECTIONID + " INTEGER NOT NULL, " +
-                "FOREIGN KEY (" + CollectionItemTable.FKCOLLECTIONID + ") REFERENCES " + CollectionTable.TABLENAME + " (" + CollectionTable.ID + "));";
+                CollectionItemTable.CUSTOMINDEX + " TEXT, " + CollectionItemTable.VALUE + " REAL, " + CollectionItemTable.FKCOLLECTIONID + " INTEGER NOT NULL, " + CollectionItemTable.FKMATERIALID + " INTEGER, " +
+                "FOREIGN KEY (" + CollectionItemTable.FKCOLLECTIONID + ") REFERENCES " + CollectionTable.TABLENAME + " (" + CollectionTable.ID + ")," +
+                "FOREIGN KEY (" + CollectionItemTable.FKMATERIALID + ") REFERENCES " + MaterialTable.TABLENAME + " (" + MaterialTable.ID + "));";
         db.execSQL(sql);
+    }
+
+    public void createMaterialTable(SQLiteDatabase db) {
+        String sql = "CREATE TABLE " + MaterialTable.TABLENAME + " (" + MaterialTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + MaterialTable.NAME + " TEXT NOT NULL);";
+        db.execSQL(sql);
+        new MaterialTable().populateDefaultMaterial(db);
     }
 
     public void createCollectionItemPhotoTable(SQLiteDatabase db) {
@@ -114,6 +124,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public long insertMaterial(String Name) {
+        Material material = new Material();
+        material.setName(Name);
+        return new MaterialTable().insertMaterial(material);
+    }
+
+    public ArrayList<Material> getMaterials() {
+        return new MaterialTable().getMaterials();
     }
 
     private class CollectionTable {
@@ -201,6 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String BASEPHOTO = "Base64Photo";
         public static final String CUSTOMINDEX = "CustomIndexReminder";
         public static final String FKCOLLECTIONID = "Fk_CollectionId";
+        public static final String FKMATERIALID = "Fk_MaterialID";
 
         public long insertCollectionItem(CollectionItem item) {
             SQLiteDatabase db = getWritableDatabase();
@@ -213,6 +234,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cv.put(VALUE, item.getValue());
             cv.put(CUSTOMINDEX, item.getCustomIndexReminder());
             cv.put(FKCOLLECTIONID, item.getFkCollectionId());
+            cv.put(FKMATERIALID, item.getFkMaterialId());
             long id =  db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
             for (CollectionItemPhoto photo : item.getPhotos()) {
                 if (id != -1) {
@@ -232,6 +254,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 item.setFkCollectionId(cursor.getInt(cursor.getColumnIndex(FKCOLLECTIONID)));
                 item.setCustomIndexReminder(cursor.getString(cursor.getColumnIndex(CUSTOMINDEX)));
                 item.setValue(cursor.getDouble(cursor.getColumnIndex(VALUE)));
+                item.setFkMaterialId(cursor.getInt(cursor.getColumnIndex(FKMATERIALID)));
                 item.setPhotos(new PhotoTable().getCollectionItemPhotosByCollectionItemId(item.getId()));
             }
             return item;
@@ -344,6 +367,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public void deleteCollectionItemPhotosByPhotoId(int photoId) {
             SQLiteDatabase db = getWritableDatabase();
             db.delete(TABLENAME, ID + " = ?", new String[]{Integer.toString(photoId)});
+        }
+
+    }
+    private class MaterialTable {
+        public static final String TABLENAME = "tblMaterial";
+        public static final String ID = "Id";
+        public static final String NAME = "Name";
+
+        public long insertMaterial(Material material) {
+            ContentValues cv = new ContentValues();
+            SQLiteDatabase db = getWritableDatabase();
+            if (material.getId() != -1) {
+                cv.put(ID, material.getId());
+            }
+            cv.put(NAME, material.getName());
+            return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        }
+
+        public long insertMaterial(Material material, SQLiteDatabase db) {
+            ContentValues cv = new ContentValues();
+            if (material.getId() != -1) {
+                cv.put(ID, material.getId());
+            }
+            cv.put(NAME, material.getName());
+            return db.insertWithOnConflict(TABLENAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        }
+
+        public Material processSingle(Cursor cursor) {
+            Material material = new Material();
+            if (cursor != null) {
+                material.setId(cursor.getInt(cursor.getColumnIndex(ID)));
+                material.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+            }
+            return material;
+        }
+
+        public ArrayList<Material> processMultiple(Cursor cursor) {
+            ArrayList<Material> materials = new ArrayList<>();
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    materials.add(processSingle(cursor));
+                    cursor.moveToNext();
+                }
+                cursor.close();
+            }
+            return materials;
+        }
+
+        public ArrayList<Material> getMaterials() {
+            SQLiteDatabase db = getReadableDatabase();
+            return processMultiple(db.query(TABLENAME, null, null, null, null, null, null));
+        }
+
+        public Material getMaterialByMaterialId(int id) {
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(TABLENAME, null, ID + " = ?",  new String[]{Integer.toString(id)}, null, null, null);
+            cursor.moveToFirst();
+            Material mat =  processSingle(cursor);
+            cursor.close();
+            return mat;
+        }
+
+        public void deleteMaterials() {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete(TABLENAME, null, null);
+        }
+
+        public void populateDefaultMaterial(SQLiteDatabase db) {
+            Material mat = new Material();
+            mat.setName("N/A");
+            insertMaterial(mat, db);
         }
     }
 }

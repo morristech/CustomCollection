@@ -24,6 +24,7 @@ public class CollectionItem implements Parcelable {
     private String CustomIndexReminder = "";
     private double Value = 0D;
     private int FkCollectionId = -1;
+    private int FkMaterialId = -1;
     private ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
 
     public CollectionItem() {
@@ -37,6 +38,8 @@ public class CollectionItem implements Parcelable {
         CustomIndexReminder = in.readString();
         Value = in.readDouble();
         FkCollectionId = in.readInt();
+        FkMaterialId = in.readInt();
+        in.readTypedList(photos, CollectionItemPhoto.CREATOR);
     }
 
     @Override
@@ -47,6 +50,7 @@ public class CollectionItem implements Parcelable {
         dest.writeString(CustomIndexReminder);
         dest.writeDouble(Value);
         dest.writeInt(FkCollectionId);
+        dest.writeInt(FkMaterialId);
         dest.writeTypedList(photos);
     }
 
@@ -113,6 +117,14 @@ public class CollectionItem implements Parcelable {
 
     public void setFkCollectionId(int fkCollectionId) {
         FkCollectionId = fkCollectionId;
+    }
+
+    public int getFkMaterialId() {
+        return FkMaterialId;
+    }
+
+    public void setFkMaterialId(int fkMaterialId) {
+        FkMaterialId = fkMaterialId;
     }
 
     public ArrayList<CollectionItemPhoto> getPhotos() {

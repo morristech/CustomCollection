@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -15,14 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import ca.useful.customcollection.R;
 import data.CollectionItem;
 import data.CollectionItemPhoto;
 import data.DatabaseHelper;
+import data.Material;
 import listeners.RecyclerItemClickListener;
 
 public class AddItemAdapter extends BaseAdapter {
@@ -40,7 +45,7 @@ public class AddItemAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 5;
+        return 6;
     }
 
     @Override
@@ -223,6 +228,52 @@ public class AddItemAdapter extends BaseAdapter {
                 });
                 et.setText(item.getCustomIndexReminder());
                 et.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                break;
+            case 5:
+                //material
+                convertView = inflater.inflate(R.layout.item_material, parent, false);
+                tvTitle = (TextView)convertView.findViewById(R.id.item_material_title);
+                final Spinner spinner = (Spinner)convertView.findViewById(R.id.item_material_spinner);
+                ImageButton btnAddNew = (ImageButton)convertView.findViewById(R.id.item_material_add_button);
+                final MaterialAdapter spAdapter = new MaterialAdapter(context);
+                spinner.setAdapter(spAdapter);
+                tvTitle.setText(R.string.material_title);
+                btnAddNew.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setView(R.layout.dialog_edittext);
+                        final AlertDialog dialog = builder.show();
+                        Button btnOk = (Button)dialog.findViewById(R.id.dialog_edittext_ok_button);
+                        final EditText etText = (EditText)dialog.findViewById(R.id.dialog_edittext_text);
+                        btnOk.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                DatabaseHelper databaseHelper = new DatabaseHelper(context);
+                                databaseHelper.insertMaterial(etText.getText().toString());
+                                databaseHelper.close();
+                                if (spinner.getAdapter() != null) {
+                                    ((MaterialAdapter)spinner.getAdapter()).notifyDataSetChanged();
+                                }
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        item.setFkMaterialId(spAdapter.getItem(position).getId());
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                if (item.getFkMaterialId() != -1) {
+                    spinner.setSelection(spAdapter.getPositionFromItemId(item.getFkMaterialId()));
+                }
                 break;
             default:
                 convertView = inflater.inflate(R.layout.item_string, parent, false);

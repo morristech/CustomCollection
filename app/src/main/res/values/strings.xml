@@ -37,4 +37,7 @@
     <string name="delete_all">Delete All Collections and Their Associated Items?</string>
     <string name="delete_all_title">Delete All Collections</string>
     <string name="photo_size_error">Cannot Change Picture Sizes Yet!</string>
+    <string name="material_title">Material</string>
+    <string name="material_name">Enter a new Material name</string>
+    <string name="name_here">Name Here</string>
 </resources>
