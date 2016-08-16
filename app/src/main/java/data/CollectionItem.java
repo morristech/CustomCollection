@@ -27,7 +27,7 @@ public class CollectionItem implements Parcelable {
     private int FkMaterialId = -1;
     private Material material = new Material();
     private ArrayList<CollectionItemPhoto> photos = new ArrayList<>();
-
+    private final double scalePercentage = .1D;
     public CollectionItem() {
     }
 
@@ -197,6 +197,19 @@ public class CollectionItem implements Parcelable {
             try {
                 photo.setPhotosAsBitmap(android.provider.MediaStore.Images.Media
                         .getBitmap(cr, Uri.parse(photo.getPhotoUri())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void populateScaledBitmapsFromUri(Context context) {
+        for (CollectionItemPhoto photo : photos) {
+            ContentResolver cr = context.getContentResolver();
+            try {
+                photo.setPhotosAsBitmap(android.provider.MediaStore.Images.Media
+                        .getBitmap(cr, Uri.parse(photo.getPhotoUri())));
+                photo.setPhotosAsBitmap(Bitmap.createScaledBitmap(photo.getPhotosAsBitmap(), (int)(photo.getPhotosAsBitmap().getWidth()*scalePercentage), (int)(photo.getPhotosAsBitmap().getHeight()*scalePercentage), true));
             } catch (IOException e) {
                 e.printStackTrace();
             }

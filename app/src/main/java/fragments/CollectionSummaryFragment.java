@@ -13,6 +13,9 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.itextpdf.text.DocumentException;
+
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -77,7 +80,6 @@ public class CollectionSummaryFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            //TODO priority, materials
             if (getActivity() != null) {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
                 convertView = inflater.inflate(R.layout.item_collection_summary, parent, false);
@@ -96,9 +98,7 @@ public class CollectionSummaryFragment extends Fragment {
 
                         if (getActivity() != null) {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            LayoutInflater inflater = LayoutInflater.from(getActivity());
-                            View dialogView = inflater.inflate(R.layout.dialog_export, null);
-                            builder.setView(dialogView);
+                            builder.setView(R.layout.dialog_export);
                             final AlertDialog dialog = builder.show();
                             ListView lv = (ListView)dialog.findViewById(R.id.dialog_export_listview);
                             final ExportAdapter adapter = new ExportAdapter(collection.getId());
@@ -107,7 +107,13 @@ public class CollectionSummaryFragment extends Fragment {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     dialog.dismiss();
-                                    adapter.performPositionClick(position);
+                                    try {
+                                        adapter.performPositionClick(position);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (DocumentException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
                         }
@@ -133,7 +139,7 @@ public class CollectionSummaryFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
 
         @Override
@@ -141,6 +147,8 @@ public class CollectionSummaryFragment extends Fragment {
             switch(position) {
                 case 0:
                     return "CSV";
+                case 1:
+                    return "PDF";
                 default:
                     return "N/A";
             }
@@ -162,7 +170,7 @@ public class CollectionSummaryFragment extends Fragment {
             return convertView;
         }
 
-        protected void performPositionClick(int position) {
+        protected void performPositionClick(int position) throws FileNotFoundException, DocumentException {
             switch (position) {
                 case 0:
                     //csv
@@ -170,6 +178,10 @@ public class CollectionSummaryFragment extends Fragment {
                     databaseHelper.writeCSV(collectionId);
                     databaseHelper.close();
                     break;
+                case 1:
+                    DatabaseHelper dataHelper = new DatabaseHelper(getActivity());
+                    dataHelper.writePDF(collectionId);
+                    dataHelper.close();
                 default:
 
                     break;

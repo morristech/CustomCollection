@@ -5,11 +5,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
 import android.os.Environment;
-import android.text.Editable;
-
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,9 +34,10 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "dbCustomCollection";
     private static final int dbVersion = 7;
-
+    private Context context;
     public DatabaseHelper(Context context) {
         super(context, NAME, null, dbVersion);
+        this.context = context;
     }
 
     //create tables
@@ -107,6 +119,69 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public ArrayList<CollectionItem> getCollectionItemsWithNoAssignedValue() {
         return new CollectionItemTable().getItemsWithMissingValues();
+    }
+
+    public void writePDF(int collectionId) throws FileNotFoundException, DocumentException {
+        Document document = new Document();
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "");
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        File pdf = new File(exportDir, "collections_" + sdf.format(Calendar.getInstance().getTime()) + ".pdf");
+        PdfWriter.getInstance(document, new FileOutputStream(pdf));
+        document.open();
+        Collection collection = new CollectionTable().getCollectionByCollectionId(collectionId);
+        document.addTitle(collection.getTitle());
+        document.addSubject("Listing items from " + collection.getTitle());
+        document.addKeywords(collection.getTitle());
+
+        Paragraph titlePage = new Paragraph();
+        titlePage.setAlignment(Element.ALIGN_MIDDLE);
+        Font f = new Font(Font.FontFamily.TIMES_ROMAN, 50.0f, Font.BOLD, BaseColor.BLACK);
+        titlePage.setFont(f);
+        titlePage.add(collection.getTitle());
+        document.add(titlePage);
+        document.newPage();
+        for (CollectionItem item : collection.getItems()) {
+            Paragraph itemParagraph = new Paragraph();
+            if (!item.getPhotos().isEmpty()) {
+                itemParagraph.setAlignment(Element.ALIGN_CENTER);
+                itemParagraph.add("Name: " + item.getName());
+                itemParagraph.setAlignment(Element.ALIGN_LEFT);
+                addEmptyLine(itemParagraph, 1);
+                int count = 0;
+                item.populateScaledBitmapsFromUri(context);
+                for (CollectionItemPhoto photo: item.getPhotos()) {
+                    try {
+                        itemParagraph.add("Photo " + count + ": ");
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        photo.getPhotosAsBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        Image image = Image.getInstance(stream.toByteArray());
+                        itemParagraph.add(image);
+                    } catch (IOException ex) {
+                        return;
+                    }
+                }
+            }
+            addEmptyLine(itemParagraph, 2);
+            itemParagraph.add("Description: " + item.getDescription());
+            addEmptyLine(itemParagraph, 1);
+            itemParagraph.add("Value: $" + item.getValue() + "");
+            addEmptyLine(itemParagraph, 1);
+            itemParagraph.add("Index: " + item.getCustomIndexReminder());
+            addEmptyLine(itemParagraph, 1);
+            itemParagraph.add("Material: " + item.getMaterial().getName());
+            addEmptyLine(itemParagraph, 1);
+            document.add(itemParagraph);
+        }
+        document.close();
+    }
+
+    private static void addEmptyLine(Paragraph paragraph, int number) {
+        for (int i = 0; i < number; i++) {
+            paragraph.add(new Paragraph(" "));
+        }
     }
 
     public void writeCSV(int collectionId) {
@@ -209,6 +284,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
             new CollectionItemTable().writeCSV(writer, collectionId);
 
+        }
+
+        public Collection getCollectionByCollectionId(int collectionId) {
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(TABLENAME, null, ID + " = ?", new String[]{Integer.toString(collectionId)}, null, null, null);
+            cursor.moveToFirst();
+            Collection c = processSingle(cursor);
+            cursor.close();
+            return c;
         }
     }
 
