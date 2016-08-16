@@ -108,6 +108,9 @@ public class CollectionListFragment extends Fragment implements View.OnClickList
             if (listView != null) {
                 listView.setOnItemClickListener(this);
             }
+            if (getArguments() != null) {
+                getArguments().putParcelableArrayList(Bundles.COLLECTIONEXTRA, collections);
+            }
         }
     }
 
