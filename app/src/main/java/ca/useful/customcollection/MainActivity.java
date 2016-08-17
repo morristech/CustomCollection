@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import data.Collection;
 import data.CollectionItem;
 import data.CollectionItemPhoto;
 import data.DatabaseHelper;
+import droidninja.filepicker.FilePickerConst;
 import fragments.AddCollectionItemFragment;
 import fragments.CollectionItemsFragment;
 import fragments.CollectionListFragment;
@@ -116,6 +118,23 @@ public class MainActivity extends FragmentActivity
                         e.printStackTrace();
                     }
                 }
+                break;
+            case FilePickerConst.REQUEST_CODE:
+                if(resultCode==RESULT_OK && data!=null) {
+                    ArrayList<String> filePaths = data.getStringArrayListExtra(FilePickerConst.KEY_SELECTED_PHOTOS);
+                    for (String path : filePaths) {
+                        CollectionItemPhoto photo = new CollectionItemPhoto();
+                        photo.setPhotoUri(Uri.fromFile(new File(path)).toString());
+                        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                        for (Fragment fragment : fragments) {
+                            if (fragment instanceof AddCollectionItemFragment && fragment.isVisible()) {
+                                ((AddCollectionItemFragment) fragment).addPhoto(photo);
+                            }
+                        }
+                    }
+                }
+
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import ca.useful.customcollection.R;
@@ -28,6 +30,7 @@ import data.CollectionItem;
 import data.CollectionItemPhoto;
 import data.DatabaseHelper;
 import data.Material;
+import droidninja.filepicker.FilePickerBuilder;
 import listeners.RecyclerItemClickListener;
 
 public class AddItemAdapter extends BaseAdapter {
@@ -101,11 +104,6 @@ public class AddItemAdapter extends BaseAdapter {
                                 public void onClick(View v) {
                                     CollectionItemPhoto photo = item.getPhotos().get(position - 1);
                                     Uri imgUri = Uri.parse(photo.getPhotoUri());
-                                    try {
-                                        context.getContentResolver().delete(imgUri, null, null);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
                                     if (photo.getId() != -1) {
                                         DatabaseHelper databaseHelper = new DatabaseHelper(context);
                                         databaseHelper.deletePhoto(photo.getId());
@@ -283,9 +281,75 @@ public class AddItemAdapter extends BaseAdapter {
     }
 
     public void takePhoto() {
-        if (context != null) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            ((Activity) context).startActivityForResult(intent, TAKE_PICTURE);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(R.layout.dialog_export);
+        final AlertDialog dialog = builder.show();
+        ListView lv  = (ListView)dialog.findViewById(R.id.dialog_export_listview);
+        final PhotoTypeAdapter adapter = new PhotoTypeAdapter();
+        lv.setAdapter(adapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                adapter.performPositionClick(position);
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private class PhotoTypeAdapter extends BaseAdapter {
+
+        public PhotoTypeAdapter() {}
+
+        @Override
+        public int getCount() {
+            return 2;
         }
+
+        @Override
+        public String getItem(int position) {
+            switch(position) {
+                case 0:
+                    return "Take Picture";
+                case 1:
+                    return "Select Existing Picture";
+                default:
+                    return "N/A";
+            }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            convertView = inflater.inflate(R.layout.item_textview, parent, false);
+            TextView tv = (TextView)convertView.findViewById(R.id.item_textview_text);
+            tv.setText(getItem(position));
+            return convertView;
+        }
+
+        public void performPositionClick(int position) {
+            switch (position) {
+                case 0:
+                    if (context != null) {
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        ((Activity) context).startActivityForResult(intent, TAKE_PICTURE);
+                    }
+                    break;
+                case 1:
+                    //select file
+                    FilePickerBuilder.getInstance().setMaxCount(3)
+                            .setActivityTheme(R.style.AppTheme)
+                            .pickPhoto((Activity)context);
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
     }
 }

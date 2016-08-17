@@ -108,7 +108,7 @@ public class Collection implements Parcelable {
     public void processPhotos(Context context) {
         if (context != null) {
             for (CollectionItem item : getItems()) {
-                item.populateBitmapsFromUri(context);
+                item.populateScaledBitmapsFromUri(context);
             }
         }
     }

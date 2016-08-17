@@ -84,6 +84,9 @@ public class AddCollectionItemFragment extends Fragment implements View.OnClickL
     public void addPhoto(CollectionItemPhoto photo) {
         photo.setFkCollectionItemId(item.getId());
         item.getPhotos().add(photo);
+        if (getActivity() != null) {
+            item.populateScaledBitmapsFromUri(getActivity(), photo);
+        }
         bind();
     }
 }
