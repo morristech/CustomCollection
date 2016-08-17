@@ -12,13 +12,10 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.itextpdf.text.DocumentException;
-
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.DatabaseHelper;
