@@ -1,5 +1,6 @@
 package fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +16,7 @@ import adapters.MissingValueAdapter;
 import ca.useful.customcollection.R;
 import data.Collection;
 import data.CollectionItem;
+import data.CollectionItemPhoto;
 import data.DatabaseHelper;
 
 public class CollectionItemsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
@@ -25,8 +27,6 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
     private CollectionItemAdapter adapter;
     private MissingValueAdapter missingValueAdapter;
     private AddCollectionItemFragment addCollectionItemFragment;
-
-    //TODO Compare, Quick Search Title, Checkbox Delete, OCR Text, Add Fancy Graphs, Stock Prices, Raw Material Make, Related Products, Grade
 
     public static CollectionItemsFragment newInstance(Collection collection) {
         CollectionItemsFragment fragment = new CollectionItemsFragment();
@@ -62,7 +62,7 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
             DatabaseHelper helper = new DatabaseHelper(getActivity());
             if (collection.getId() != -1) {
                 collection.setItems(helper.getCollectionItems(collection.getId()));
-                collection.processPhotos(getActivity());
+                processCollectionPhotosAsync();
                 if (collection != null) {
                     adapter = new CollectionItemAdapter(getActivity(), collection);
                     gridView.setAdapter(adapter);
@@ -72,7 +72,7 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
                 }
             } else {
                 collection.setItems(helper.getCollectionItemsWithNoAssignedValue());
-                collection.processPhotos(getActivity());
+                processCollectionPhotosAsync();
                 if (collection != null) {
                     missingValueAdapter = new MissingValueAdapter(getActivity(), collection);
                     gridView.setAdapter(missingValueAdapter);
@@ -82,6 +82,40 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
                 }
             }
             helper.close();
+        }
+    }
+
+    /**
+     * Because the activity can be null within the async method, a check before every operation is required to this particular case without a higher level context being used.
+     */
+    protected void processCollectionPhotosAsync() {
+        for (final CollectionItem item : collection.getItems()) {
+            if (getActivity() != null) {
+                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        //Get Activity can be null in the instance as well
+                        if (getActivity() != null) {
+                            item.populateScaledBitmapsFromUri(getActivity());
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (getActivity() != null) {
+                                            if (adapter != null) {
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            return null;
+                        }
+                        return null;
+                    }
+                };
+                task.execute();
+            }
         }
     }
 
