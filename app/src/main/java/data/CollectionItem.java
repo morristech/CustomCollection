@@ -191,16 +191,16 @@ public class CollectionItem implements Parcelable {
         }
     }
 
-    public void populateBitmapsFromUri(Context context) {
-        for (CollectionItemPhoto photo : photos) {
+    public void populateScaledBitmapsFromUri(Context context, CollectionItemPhoto specificPhoto) {
             ContentResolver cr = context.getContentResolver();
             try {
-                photo.setPhotosAsBitmap(android.provider.MediaStore.Images.Media
-                        .getBitmap(cr, Uri.parse(photo.getPhotoUri())));
+                specificPhoto.setPhotosAsBitmap(android.provider.MediaStore.Images.Media
+                        .getBitmap(cr, Uri.parse(specificPhoto.getPhotoUri())));
+                specificPhoto.setPhotosAsBitmap(Bitmap.createScaledBitmap(specificPhoto.getPhotosAsBitmap(), (int)(specificPhoto.getPhotosAsBitmap().getWidth()*scalePercentage), (int)(specificPhoto.getPhotosAsBitmap().getHeight()*scalePercentage), true));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+
     }
 
     public void populateScaledBitmapsFromUri(Context context) {

@@ -26,5 +26,6 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'net.sf.opencsv:opencsv:2.3'
     compile 'com.itextpdf:itextg:5.5.9'
+    compile 'com.droidninja:filepicker:1.0.4'
 
 }
