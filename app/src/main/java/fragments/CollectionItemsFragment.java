@@ -104,6 +104,8 @@ public class CollectionItemsFragment extends Fragment implements AdapterView.OnI
                                         if (getActivity() != null) {
                                             if (adapter != null) {
                                                 adapter.notifyDataSetChanged();
+                                            } else if (missingValueAdapter != null) {
+                                                missingValueAdapter.notifyDataSetChanged();
                                             }
                                         }
                                     }
